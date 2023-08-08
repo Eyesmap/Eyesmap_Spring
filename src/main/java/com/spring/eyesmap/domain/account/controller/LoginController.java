@@ -1,13 +1,9 @@
-package com.spring.eyesmap.domain.login.controller;
+package com.spring.eyesmap.domain.account.controller;
 
-import com.spring.eyesmap.domain.login.service.LoginService;
+import com.spring.eyesmap.domain.account.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
