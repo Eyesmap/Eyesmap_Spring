@@ -1,6 +1,7 @@
 package com.spring.eyesmap.domain.login.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,12 +23,20 @@ public class LoginService {
     private String redirectUri;
 
     public void login(String code) {
-        ResponseEntity<Object> response = getAccessToken(code);
+        // request accesstoken
+        ResponseEntity<String> response = getAccessToken(code);
 
+        // get accesstoken
+        String tokenJson = response.getBody();
+        JSONObject rjson = new JSONObject(tokenJson);
+        String accessToken = rjson.getString("access_token");
+
+        // get accountInfo
+        ResponseEntity<String> accountInfo = getAccountInfo(accessToken);
 
     }
 
-    public ResponseEntity<Object> getAccessToken(String code){
+    public ResponseEntity<String> getAccessToken(String code){
         // 1. header
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8");
@@ -44,13 +53,17 @@ public class LoginService {
 
         // request http
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> response = restTemplate.exchange(
+        ResponseEntity<String> response = restTemplate.exchange(
                 "https://kauth.kakao.com/oauth/token",
                 HttpMethod.POST,
                 httpEntity,
-                Object.class
+                String.class
         );
         log.info("response = " + response);
         return response;
+    }
+
+    public ResponseEntity<String> getAccountInfo(String code){
+        return null;
     }
 }
