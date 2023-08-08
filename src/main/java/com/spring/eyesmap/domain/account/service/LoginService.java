@@ -2,6 +2,8 @@ package com.spring.eyesmap.domain.account.service;
 
 import com.spring.eyesmap.domain.account.repository.Account;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
+import com.spring.eyesmap.global.enumeration.Role;
+import com.spring.eyesmap.global.security.AccountDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -46,10 +48,10 @@ public class LoginService {
         // get accountInfo
         String userInfoJson = response.getBody();
         JSONObject userInfoJsonObject = new JSONObject(tokenJson);
-        Long id = userInfoJsonObject.getLong("id");
+        String id = userInfoJsonObject.getString("id");
         String nickname = userInfoJsonObject.getString("nickname");
 
-        // check duplicate id in database
+        // check duplication id in database
         Account kakaoAccount = accountRepository.findById(id).orElse(null);
 
         // if not duplicate, sign up
@@ -57,14 +59,15 @@ public class LoginService {
             kakaoAccount = Account.builder()
                     .id(id)
                     .nickname(nickname)
+                    .role(Role.ROLE_USER)
                     .build();
             accountRepository.save(kakaoAccount);
         }
 
         // login
-        Authentication authentication = new UsernamePasswordAuthenticationToken(kakaoAccount, null);
+        AccountDetails accountDetails = new AccountDetails(kakaoAccount);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
     }
 
     public ResponseEntity<String> getAccessToken(String code){

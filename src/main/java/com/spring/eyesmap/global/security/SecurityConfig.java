@@ -7,11 +7,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.auth
+        return http.csrf().disable()
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/api/voice/**").hasRole("ADMIN")
+                        .requestMatchers("/api/report/**").authenticated()
+                        .anyRequest().permitAll())
+                .build();
     }
 }

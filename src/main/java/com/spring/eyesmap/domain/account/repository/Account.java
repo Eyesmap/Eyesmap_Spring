@@ -1,22 +1,27 @@
 package com.spring.eyesmap.domain.account.repository;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.spring.eyesmap.global.enumeration.Role;
+import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Account {
 
     @Id
-    private Long id;
+    private String id;
 
     @Column
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Builder
-    public Account(Long id, String nickname){
+    public Account(String id, String nickname, Role role){
         this.id = id;
         this.nickname = nickname;
+        this.role = role;
     }
 }
