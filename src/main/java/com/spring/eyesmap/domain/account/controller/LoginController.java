@@ -8,8 +8,6 @@ import com.spring.eyesmap.global.exception.LoginFailedException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,6 +39,8 @@ public class LoginController {
 
     @GetMapping("/api/logout")
     public ResponseEntity<LogoutResponseDto> logout(HttpSession httpSession){
+        // get userinfo(another version)
+        // @AuthenticationPrincipal AccountDetails accountDetails
         ResponseDto responseDto;
 
         loginService.logout(httpSession);

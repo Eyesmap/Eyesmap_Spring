@@ -17,9 +17,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/voice/**").hasRole("ADMIN")
                         .requestMatchers("/api/report/**").authenticated()
                         .anyRequest().permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/api/logout")
-                        .addLogoutHandler(new SecurityContextLogoutHandler()))
                 .build();
     }
 }

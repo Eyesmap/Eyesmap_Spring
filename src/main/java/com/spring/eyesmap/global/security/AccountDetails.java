@@ -3,6 +3,7 @@ package com.spring.eyesmap.global.security;
 import com.spring.eyesmap.domain.account.repository.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Data
+@Getter
 @AllArgsConstructor
 public class AccountDetails implements UserDetails {
 

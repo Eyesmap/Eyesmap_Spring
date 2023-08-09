@@ -30,7 +30,7 @@ public class LoginService {
     @Value("${kakao.oauth2.login.redirect_uri}")
     private String redirectUri;
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     public void login(String code, HttpSession httpSession) {
         // request accesstoken
@@ -40,19 +40,22 @@ public class LoginService {
         String tokenJson = response.getBody();
         JSONObject tokenJsonObject = new JSONObject(tokenJson);
         String accessToken = tokenJsonObject.getString("access_token");
-
+        log.info("-3. accessToken = " + accessToken);
         // request accountInfo
         ResponseEntity<String> accountInfo = getAccountInfo(accessToken);
 
         // get accountInfo
-        String userInfoJson = response.getBody();
-        JSONObject userInfoJsonObject = new JSONObject(tokenJson);
-        String id = userInfoJsonObject.getString("id");
-        String nickname = userInfoJsonObject.getString("nickname");
+        String accountJson = accountInfo.getBody();
+        JSONObject accountInfoJsonObject = new JSONObject(accountJson);
+        log.info("-2. accountInfoJsonObject = " + accountInfoJsonObject);
+        Long longId = accountInfoJsonObject.getLong("id");
+        String id = longId.toString();
+        String nickname = accountInfoJsonObject.getJSONObject("properties").getString("nickname");
+        log.info("-1. id= "+ longId+ nickname);
 
         // check duplication id in database
         Account kakaoAccount = accountRepository.findById(id).orElse(null);
-
+        log.info("0. kakaoAccount= "+ kakaoAccount);
         // if not duplicate, sign up
         if(kakaoAccount == null){
             kakaoAccount = Account.builder()
@@ -68,9 +71,12 @@ public class LoginService {
 
         // login
         AccountDetails accountDetails = new AccountDetails(kakaoAccount);
+        log.info("1. accountDetails= "+ accountDetails.getAccount().getNickname());
         Authentication authentication = new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
+        log.info("2. authentication= "+ authentication.getPrincipal());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        AccountDetails z = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        log.info("3. nickname= "+z.getAccount().getNickname());
     }
 
     public ResponseEntity<String> getAccessToken(String code){
@@ -122,10 +128,13 @@ public class LoginService {
     }
 
     public void logout(HttpSession httpSession) {
-        // get login account
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //get user info. In this case, we need only access_token
-        // Account principal = (Account) authentication.getPrincipal();
+
+        // for test
+        AccountDetails accountDetails = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        log.info((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        Account account = accountDetails.getAccount();
+        log.info("logout nickname= "+account.getNickname());
+
 
         // 1. header
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -144,6 +153,8 @@ public class LoginService {
         );
         log.info("logoutAccountInfo = " + response);
 
-        // remove access_token and info in SecurityContext(from SecurityConfig)
+        // remove access_token and info in SecurityContext
+        httpSession.invalidate();
+        SecurityContextHolder.clearContext();
     }
 }
