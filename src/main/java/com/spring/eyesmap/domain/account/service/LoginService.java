@@ -68,6 +68,10 @@ public class LoginService {
         AccountDetails accountDetails = new AccountDetails(kakaoAccount);
         Authentication authentication = new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // load login account
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        Accounr principal = (Accounr) authentication.getPrincipal();
     }
 
     public ResponseEntity<String> getAccessToken(String code){
