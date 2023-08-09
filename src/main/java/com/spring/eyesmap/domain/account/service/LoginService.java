@@ -4,17 +4,16 @@ import com.spring.eyesmap.domain.account.repository.Account;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.enumeration.Role;
 import com.spring.eyesmap.global.security.AccountDetails;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -33,7 +32,7 @@ public class LoginService {
 
     private AccountRepository accountRepository;
 
-    public void login(String code) {
+    public void login(String code, HttpSession httpSession) {
         // request accesstoken
         ResponseEntity<String> response = getAccessToken(code);
 
@@ -64,14 +63,14 @@ public class LoginService {
             accountRepository.save(kakaoAccount);
         }
 
+        // store token in session for logout
+        httpSession.setAttribute("access_token", accessToken);
+
         // login
         AccountDetails accountDetails = new AccountDetails(kakaoAccount);
         Authentication authentication = new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // load login account
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Accounr principal = (Accounr) authentication.getPrincipal();
     }
 
     public ResponseEntity<String> getAccessToken(String code){
@@ -101,24 +100,50 @@ public class LoginService {
         return response;
     }
 
-    public ResponseEntity<String> getAccountInfo(String code){
+    public ResponseEntity<String> getAccountInfo(String accessToken){
         // 1. header
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Bearer " + code);
+        httpHeaders.add("Authorization", "Bearer " + accessToken);
         httpHeaders.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         // 2. put header
-        HttpEntity<MultiValueMap<String, String>> kakaoProfileRequest = new HttpEntity<>(httpHeaders);
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(httpHeaders);
 
         // request http
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.exchange(
                 "https://kapi.kakao.com/v2/user/me",
                 HttpMethod.POST,
-                kakaoProfileRequest,
+                httpEntity,
                 String.class
         );
         log.info("accountInfoByToken = " + response);
         return response;
+    }
+
+    public void logout(HttpSession httpSession) {
+        // get login account
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //get user info. In this case, we need only access_token
+        // Account principal = (Account) authentication.getPrincipal();
+
+        // 1. header
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", "Bearer " + httpSession.getAttribute("access_token"));
+
+        // 2. put header
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(httpHeaders);
+
+        // request http
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/logout",
+                HttpMethod.POST,
+                httpEntity,
+                String.class
+        );
+        log.info("logoutAccountInfo = " + response);
+
+        // remove access_token and info in SecurityContext(from SecurityConfig)
     }
 }

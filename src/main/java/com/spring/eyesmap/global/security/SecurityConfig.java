@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 @Configuration
 public class SecurityConfig {
@@ -16,6 +17,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/voice/**").hasRole("ADMIN")
                         .requestMatchers("/api/report/**").authenticated()
                         .anyRequest().permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/api/logout")
+                        .addLogoutHandler(new SecurityContextLogoutHandler()))
                 .build();
     }
 }
