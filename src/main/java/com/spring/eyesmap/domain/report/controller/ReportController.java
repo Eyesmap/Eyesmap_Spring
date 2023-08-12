@@ -1,6 +1,8 @@
 package com.spring.eyesmap.domain.report.controller;
 
+import com.spring.eyesmap.domain.report.dto.ReportDto;
 import com.spring.eyesmap.domain.report.service.ReportService;
+import com.spring.eyesmap.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +20,7 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping("/create")
-    public String createReport(@RequestParam("images") MultipartFile images) throws IOException {//List<MultipartFile>
-        reportService.createReport(images, "report");
-        return "done";
+    public BaseResponse<ReportDto.CreateReportResponse> createReport(@RequestParam("images") List<MultipartFile> images) throws IOException {//List<MultipartFile>
+        return new BaseResponse<>(reportService.createReport(images, "report"));
     }
 }
