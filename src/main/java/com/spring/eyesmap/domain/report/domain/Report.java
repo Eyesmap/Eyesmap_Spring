@@ -1,14 +1,14 @@
 package com.spring.eyesmap.domain.report.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.spring.eyesmap.domain.user.domain.User;
+import com.spring.eyesmap.domain.account.domain.Account;
+import com.spring.eyesmap.domain.image.domain.Image;
+import com.spring.eyesmap.global.enumeration.Sort;
 import com.spring.eyesmap.global.enumeration.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 
@@ -29,14 +29,12 @@ public class Report {
     @Enumerated(EnumType.STRING)
     private Sort sort;
 
-    @Column(name = "api_report_id")
-    private String apiReportId; //서울시 api 고유 번호
-
     private String contents;
 
     private Status status;
 
     private String title;
+    private Integer gu;//구 번호
 
     @CreatedDate
     @Column(updatable = false, name = "report_date", nullable = false)
@@ -45,9 +43,13 @@ public class Report {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private Account account;
 
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "location_id")
-//    private Location locationId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location locationId;
+
+    @ManyToOne
+    @JoinColumn(name = "iamge_id")
+    private Image image;
 }
