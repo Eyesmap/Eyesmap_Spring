@@ -7,5 +7,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ReportService {
-    ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFile, String dirNm) throws IOException;
+    ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFile, ReportDto.CreateReportRequest createReportRequest) throws IOException;
 }
