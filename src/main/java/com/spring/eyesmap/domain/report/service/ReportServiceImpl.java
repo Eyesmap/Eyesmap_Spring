@@ -30,9 +30,6 @@ public class ReportServiceImpl implements ReportService{
     private final S3UploaderService s3UploaderService;
     private final LocationRepository locationRepository;
     private final ImageRepository imageRepository;
-
-    private final ReportEnum.ReportedStatus reportedStatusReported = ReportEnum.ReportedStatus.REPORTED;
-    private final ImageSort imageSortDamaged = ImageSort.Damaged;
     public BaseResponse<Report> getReport(String reportId){ // 상세
         Report report = reportRepository.findById(reportId).orElseThrow(()-> new CustomException());
         return new BaseResponse<>(report);
@@ -43,8 +40,8 @@ public class ReportServiceImpl implements ReportService{
 //    }
 
     @Override
-    public ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFiles, ReportDto.CreateReportRequest createReportRequest) throws IOException {
-        String dirNm = "report/reported/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
+    public ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFiles, ReportDto.CreateReportRequest createReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
+        String dirNm = "report/"+reportedStatus + "/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
         System.out.println(dirNm);
 
         Location location = Location.builder()
@@ -62,7 +59,7 @@ public class ReportServiceImpl implements ReportService{
         Report report = Report.builder()
                         .contents(createReportRequest.getContents())
                         .damagedStatus(createReportRequest.getDamagedStatus())
-                        .reportedStatus(reportedStatusReported)
+                        .reportedStatus(reportedStatus)
                         .location(location)
                         .title(createReportRequest.getTitle())
                         .sort(createReportRequest.getSort())
@@ -76,7 +73,7 @@ public class ReportServiceImpl implements ReportService{
         List<Image> uploadedImage = imageUrls.stream()
                 .map(imageUrl -> Image.builder()
                         .url(imageUrl)
-                        .imageSort(imageSortDamaged)
+                        .imageSort(imageSort)
                         .report(report)
                         .build()).collect(Collectors.toList());
         imageRepository.saveAll(uploadedImage);
