@@ -3,17 +3,15 @@ package com.spring.eyesmap.domain.account.service;
 import com.spring.eyesmap.domain.account.repository.Account;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.enumeration.Role;
-import com.spring.eyesmap.global.security.AccountDetails;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -70,13 +68,13 @@ public class LoginService {
         httpSession.setAttribute("access_token", accessToken);
 
         // login
-        AccountDetails accountDetails = new AccountDetails(kakaoAccount);
-        log.info("1. accountDetails= "+ accountDetails.getAccount().getNickname());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
-        log.info("2. authentication= "+ authentication.getPrincipal());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        AccountDetails z = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("3. nickname= "+z.getAccount().getNickname());
+//        AccountDetails accountDetails = new AccountDetails(kakaoAccount);
+//        log.info("1. accountDetails= "+ accountDetails.getAccount().getNickname());
+//        Authentication authentication = new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
+//        log.info("2. authentication= "+ authentication.getPrincipal());
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        AccountDetails z = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        log.info("3. nickname= "+z.getAccount().getNickname());
     }
 
     public ResponseEntity<String> getAccessToken(String code){
@@ -130,10 +128,10 @@ public class LoginService {
     public void logout(HttpSession httpSession) {
 
         // for test
-        AccountDetails accountDetails = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        Account account = accountDetails.getAccount();
-        log.info("logout nickname= "+account.getNickname());
+//        AccountDetails accountDetails = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        log.info((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+//        Account account = accountDetails.getAccount();
+//        log.info("logout nickname= "+account.getNickname());
 
 
         // 1. header
@@ -155,6 +153,6 @@ public class LoginService {
 
         // remove access_token and info in SecurityContext
         httpSession.invalidate();
-        SecurityContextHolder.clearContext();
+        // SecurityContextHolder.clearContext();
     }
 }

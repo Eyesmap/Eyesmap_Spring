@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class CustomHandler {
     @ExceptionHandler(LoginFailedException.class)
-    public ResponseEntity<ResponseDto> loginFailedException(
+    public ResponseEntity<ResponseDto> loginFailedException (
             LoginFailedException e) {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
