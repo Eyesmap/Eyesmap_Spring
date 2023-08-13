@@ -32,4 +32,16 @@ public class ReportController {
 
         return new BaseResponse<>(reportService.createReport(images, createReportRequest, reportedStatusRestored, imageSortRestored));
     }
+
+    @GetMapping("/list")
+    public BaseResponse<Void> getReportList() {
+
+
+        return new BaseResponse<>();
+    }
+    @GetMapping("/{report-id}")
+    public BaseResponse<ReportDto.ReportResponse> getReport(@PathVariable(name = "report-id") String reportId) {
+
+        return new BaseResponse<>(reportService.getReport(reportId));
+    }
 }

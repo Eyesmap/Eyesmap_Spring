@@ -18,6 +18,7 @@ public class Location {
     @GenericGenerator(name="uuid2", strategy = "uuid2")
     @Column(name = "location_id", columnDefinition = "VARCHAR(255)")
     private String id;
+    @Column(unique=true)
     private String address;
     private String gpsX;
     private String gpsY;

@@ -61,12 +61,12 @@ public class ReportDto {
 
         private String accountId; // 이후 토큰으로 변경
     }
+
     @Getter
     public static class CreateReportResponse{
         private String address;
         private String gpsX;
         private String gpsY;
-
         private String title;
         private String contents;
         @Enumerated(EnumType.STRING)
@@ -74,9 +74,7 @@ public class ReportDto {
         @Enumerated(EnumType.STRING)
         private ReportEnum.Sort sort;
         private List<String> imageUrls;
-
         private String accountId;
-
 
         @Builder
         public CreateReportResponse(Location location, Report report, List<String> imageUrls, String accountId){
@@ -91,6 +89,39 @@ public class ReportDto {
 
             this.imageUrls = imageUrls;
             this.accountId = accountId;
+        }
+    }
+
+    @Getter
+    public static class ReportResponse{
+        private String address;
+        private String gpsX;
+        private String gpsY;
+
+        private String title;
+        private String contents;
+        @Enumerated(EnumType.STRING)
+        private ReportEnum.DamagedStatus damagedStatus;
+        @Enumerated(EnumType.STRING)
+        private ReportEnum.Sort sort;
+        private LocalDateTime reportDate;
+        private Integer dangerousCnt;
+
+        private List<String> imageUrls;
+        @Builder
+        public ReportResponse(Location location, Report report, List<String> imageUrls){
+            this.address = location.getAddress();
+            this.gpsX = location.getGpsX();
+            this.gpsY = location.getGpsY();
+
+            this.title = report.getTitle();
+            this.contents = report.getContents();
+            this.damagedStatus = report.getDamagedStatus();
+            this.sort = report.getSort();
+            this.reportDate = report.getReportDate();
+            this.dangerousCnt = report.getDangerousCnt();
+
+            this.imageUrls = imageUrls;
         }
     }
 }

@@ -30,14 +30,6 @@ public class ReportServiceImpl implements ReportService{
     private final S3UploaderService s3UploaderService;
     private final LocationRepository locationRepository;
     private final ImageRepository imageRepository;
-    public BaseResponse<Report> getReport(String reportId){ // 상세
-        Report report = reportRepository.findById(reportId).orElseThrow(()-> new CustomException());
-        return new BaseResponse<>(report);
-    }
-
-//    public BaseResponse<Report> getReportList(){
-//
-//    }
 
     @Override
     public ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFiles, ReportDto.CreateReportRequest createReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
@@ -51,10 +43,10 @@ public class ReportServiceImpl implements ReportService{
                 .build();
         locationRepository.save(location);
         System.out.println(createReportRequest.getAccountId());
-        Account account = accountRepository.findById(createReportRequest.getAccountId()).get();
-        //.orElseThrow(
-//                () -> new CustomException()
-//        );
+        Account account = accountRepository.findById(createReportRequest.getAccountId())
+        .orElseThrow(
+                () -> new CustomException() //로그인이랑 합치고 변경
+        );
 
         Report report = Report.builder()
                         .contents(createReportRequest.getContents())
@@ -85,5 +77,22 @@ public class ReportServiceImpl implements ReportService{
                 .accountId(account.getId())
                 .build();
     }
+
+    @Override
+    public ReportDto.ReportResponse getReport(String reportId){ // 상세
+        Report report = reportRepository.findById(reportId).orElseThrow(()-> new CustomException());
+        List<String> imageUrls = imageRepository.findAllByReportReportId(reportId).stream()
+                .map((image) -> image.getUrl()).toList();
+
+        return ReportDto.ReportResponse.builder()
+                .report(report)
+                .location(report.getLocation())
+                .imageUrls(imageUrls)
+                .build();
+    }
+
+//    public BaseResponse<Report> getReportList(){
+//
+//    }
 
 }
