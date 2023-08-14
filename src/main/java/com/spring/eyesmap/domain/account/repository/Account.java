@@ -13,10 +13,7 @@ import lombok.NoArgsConstructor;
 public class Account {
 
     @Id
-    private String id;
-
-    @Column
-    private String password;
+    private Long id;
 
     @Column
     private String nickname;
@@ -25,9 +22,8 @@ public class Account {
     private Role role;
 
     @Builder
-    public Account(String id, String password, String nickname, Role role){
+    public Account(Long id, String nickname, Role role){
         this.id = id;
-        this.password = password;
         this.nickname = nickname;
         this.role = role;
     }

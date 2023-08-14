@@ -1,158 +1,103 @@
 package com.spring.eyesmap.domain.account.service;
 
+import com.spring.eyesmap.domain.account.dto.LoginResponseDto;
 import com.spring.eyesmap.domain.account.repository.Account;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
+import com.spring.eyesmap.global.dto.ResponseDto;
 import com.spring.eyesmap.global.enumeration.Role;
+import com.spring.eyesmap.global.exception.NotFoundAccountException;
+import com.spring.eyesmap.global.jwt.JwtTokenProvider;
+import com.spring.eyesmap.global.oauth.KakaoUserInfo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Map;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class LoginService {
 
-    @Value("${kakao.oauth2.login.restapi.key}")
-    private String apiKey;
-
-    @Value("${kakao.oauth2.login.redirect_uri}")
-    private String redirectUri;
-
+    private static final String BEARER_TYPE = "Bearer";
     private final AccountRepository accountRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    @Value("${kakao.admin-key}")
+    private String adminKey;
 
-    public void login(String code, HttpSession httpSession) {
-        // request accesstoken
-        ResponseEntity<String> response = getAccessToken(code);
+    @Transactional
+    public LoginResponseDto loginWithToken(Long providerId) {
+        Account account = accountRepository.findById(providerId).orElse(null);
 
-        // get accesstoken
-        String tokenJson = response.getBody();
-        JSONObject tokenJsonObject = new JSONObject(tokenJson);
-        String accessToken = tokenJsonObject.getString("access_token");
-        log.info("-3. accessToken = " + accessToken);
-        // request accountInfo
-        ResponseEntity<String> accountInfo = getAccountInfo(accessToken);
-
-        // get accountInfo
-        String accountJson = accountInfo.getBody();
-        JSONObject accountInfoJsonObject = new JSONObject(accountJson);
-        log.info("-2. accountInfoJsonObject = " + accountInfoJsonObject);
-        Long longId = accountInfoJsonObject.getLong("id");
-        String id = longId.toString();
-        String nickname = accountInfoJsonObject.getJSONObject("properties").getString("nickname");
-        log.info("-1. id= "+ longId+ nickname);
-
-        // check duplication id in database
-        Account kakaoAccount = accountRepository.findById(id).orElse(null);
-        log.info("0. kakaoAccount= "+ kakaoAccount);
-        // if not duplicate, sign up
-        if(kakaoAccount == null){
-            kakaoAccount = Account.builder()
-                    .id(id)
-                    .nickname(nickname)
-                    .role(Role.ROLE_USER)
-                    .build();
-            accountRepository.save(kakaoAccount);
+        // signUp
+        if (account == null){
+            account = signUp(providerId);
         }
 
-        // store token in session for logout
-        httpSession.setAttribute("access_token", accessToken);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()));
+        String refreshToken = jwtTokenProvider.createRefreshToken();
 
-        // login
-//        AccountDetails accountDetails = new AccountDetails(kakaoAccount);
-//        log.info("1. accountDetails= "+ accountDetails.getAccount().getNickname());
-//        Authentication authentication = new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
-//        log.info("2. authentication= "+ authentication.getPrincipal());
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        AccountDetails z = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        log.info("3. nickname= "+z.getAccount().getNickname());
+        ResponseDto responseDto = new ResponseDto("로그인 성공");
+        return new LoginResponseDto(responseDto, accessToken, refreshToken);
     }
 
-    public ResponseEntity<String> getAccessToken(String code){
-        // 1. header
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8");
-
-        // 2. body
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", apiKey);
-        params.add("redirect_uri", redirectUri);
-        params.add("code", code);
-
-        // 3. header + body
-        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, httpHeaders);
-
-        // request http
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://kauth.kakao.com/oauth/token",
-                HttpMethod.POST,
-                httpEntity,
-                String.class
-        );
-        log.info("accessTokenResponse = " + response);
-        return response;
+    private Map<String, Object> getUserAttributesByToken(Long providerId){
+        return WebClient.create()
+                .get()
+                .uri("https://kapi.kakao.com/v2/user/me?target_id_type=user_id?target_id=" + providerId)
+                .header("Authorization", "KakaoAK "+ adminKey)
+                .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                .block();
     }
 
-    public ResponseEntity<String> getAccountInfo(String accessToken){
-        // 1. header
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Bearer " + accessToken);
-        httpHeaders.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        // 2. put header
-        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(httpHeaders);
+    private Account signUp(Long providerId){
+//        if(!provider.equals("kakao")){
+//            throw new IllegalArgumentException("잘못된 접근입니다.");
+//        }
+        Map<String, Object> userAttributesByToken = getUserAttributesByToken(providerId);
+        KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(userAttributesByToken);
+        Long kakao_id = kakaoUserInfo.getId();
+        // String name = kakaoUserInfo.getName();
+        String nickName = kakaoUserInfo.getNickName();
 
-        // request http
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.POST,
-                httpEntity,
-                String.class
-        );
-        log.info("accountInfoByToken = " + response);
-        return response;
+        Account signInAccount = Account.builder()
+                .id(kakao_id)
+                .nickname(nickName)
+                .role(Role.ROLE_USER)
+                .build();
+
+        accountRepository.save(signInAccount);
+        return signInAccount;
     }
 
-    public void logout(HttpSession httpSession) {
+    // get userInfo to kakao
+    public Account getUserInfo(Long providerId){
+        Map<String, Object> userAttributesByToken = getUserAttributesByToken(providerId);
+        KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(userAttributesByToken);
+        Long kakao_id = kakaoUserInfo.getId();
+        // String name = kakaoUserInfo.getName();
+        String nickName = kakaoUserInfo.getNickName();
 
-        // for test
-//        AccountDetails accountDetails = (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        log.info((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-//        Account account = accountDetails.getAccount();
-//        log.info("logout nickname= "+account.getNickname());
-
-
-        // 1. header
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Bearer " + httpSession.getAttribute("access_token"));
-
-        // 2. put header
-        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(httpHeaders);
-
-        // request http
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://kapi.kakao.com/v1/user/logout",
-                HttpMethod.POST,
-                httpEntity,
-                String.class
-        );
-        log.info("logoutAccountInfo = " + response);
-
-        // remove access_token and info in SecurityContext
-        httpSession.invalidate();
-        // SecurityContextHolder.clearContext();
+        return accountRepository.findById(kakao_id).orElseThrow(
+                () -> new NotFoundAccountException());
     }
 }

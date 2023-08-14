@@ -15,4 +15,12 @@ public class CustomHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ResponseDto("로그인 실패", e.getClass().getName()));
     }
+
+    @ExceptionHandler(NotFoundAccountException.class)
+    public ResponseEntity<ResponseDto> notFoundAccountException (
+            NotFoundAccountException e) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ResponseDto("해당 사용자 없음", e.getClass().getName()));
+    }
 }
