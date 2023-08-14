@@ -16,10 +16,12 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -28,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +43,9 @@ public class LoginService {
     private final JwtTokenProvider jwtTokenProvider;
     @Value("${kakao.admin-key}")
     private String adminKey;
+    private final RedisTemplate redisTemplate;
+    @Value("${jwt.refresh-token.expire-length}")
+    private long refreshTokenValidityInMilliseconds;
 
     @Transactional
     public LoginResponseDto loginWithToken(Long providerId) {
@@ -52,6 +58,8 @@ public class LoginService {
 
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getUserId()));
         String refreshToken = jwtTokenProvider.createRefreshToken();
+
+        redisTemplate.opsForValue().set("RT:"+account.getUserId(),refreshToken,refreshTokenValidityInMilliseconds, TimeUnit.MILLISECONDS);
 
         ResponseDto responseDto = new ResponseDto("로그인 성공");
         return new LoginResponseDto(responseDto, accessToken, refreshToken);
@@ -100,5 +108,26 @@ public class LoginService {
 
         return accountRepository.findById(kakao_id).orElseThrow(
                 () -> new NotFoundAccountException());
+    }
+
+    @Transactional
+    public void logout(String authorization){
+        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
+        if (!jwtTokenProvider.validateToken(authorization)){
+            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+        }
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = jwtTokenProvider.getAuthentication(authorization);
+        log.info("authentication= "+authentication.getName());
+
+        // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
+        if (redisTemplate.opsForValue().get("RT:"+authentication.getName())!=null){
+            // Refresh Token을 삭제
+            redisTemplate.delete("RT:"+authentication.getName());
+        }
+        // 해당 Access Token 유효시간을 가지고 와서 BlackList에 저장하기
+        Long expiration = jwtTokenProvider.getExpiration(authorization);
+        redisTemplate.opsForValue().set(authorization,"logout",expiration,TimeUnit.MILLISECONDS);
+
     }
 }

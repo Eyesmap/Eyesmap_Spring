@@ -38,7 +38,7 @@ public class LoginTestController {
         return ResponseEntity.ok().body(new LoginTestResponseDto(responseDto));
     }
 
-    @GetMapping("/api/logout")
+    @GetMapping("/logout")
     public ResponseEntity<LogoutResponseDto> logout(HttpSession httpSession){
         // get userinfo(another version)
         // @AuthenticationPrincipal AccountDetails accountDetails

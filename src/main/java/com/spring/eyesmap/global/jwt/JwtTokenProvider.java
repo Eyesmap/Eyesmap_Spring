@@ -87,4 +87,14 @@ public class JwtTokenProvider {
         UserDetails userDetails = accountDetailsService.loadUserByUsername(getId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
+
+    public Long getExpiration(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration()
+                .getTime();
+
+    }
 }

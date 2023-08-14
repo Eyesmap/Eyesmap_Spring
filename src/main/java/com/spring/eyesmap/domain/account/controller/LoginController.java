@@ -6,13 +6,11 @@ import com.spring.eyesmap.domain.account.service.LoginService;
 import com.spring.eyesmap.global.dto.ResponseDto;
 import com.spring.eyesmap.global.exception.LoginFailedException;
 import jakarta.servlet.http.HttpSession;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,4 +25,9 @@ public class LoginController {
         return ResponseEntity.ok().body(loginResponseDto);
     }
 
+    @GetMapping("/api/logout")
+    public ResponseEntity<LogoutResponseDto> logout(@RequestHeader(value = "Authorization") String authorization){
+        loginService.logout(authorization);
+        return ResponseEntity.ok().body(new LogoutResponseDto(new ResponseDto("로그아웃 성공")));
+    }
 }
