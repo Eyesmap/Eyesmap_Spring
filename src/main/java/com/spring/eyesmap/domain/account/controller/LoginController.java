@@ -26,4 +26,5 @@ public class LoginController {
         LoginResponseDto loginResponseDto = loginService.loginWithToken(providerId);
         return ResponseEntity.ok().body(loginResponseDto);
     }
+
 }

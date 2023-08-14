@@ -2,7 +2,6 @@ package com.spring.eyesmap.domain.account.repository;
 
 import com.spring.eyesmap.global.enumeration.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,8 @@ import lombok.NoArgsConstructor;
 public class Account {
 
     @Id
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column
     private String nickname;
@@ -22,8 +22,8 @@ public class Account {
     private Role role;
 
     @Builder
-    public Account(Long id, String nickname, Role role){
-        this.id = id;
+    public Account(Long userId, String nickname, Role role){
+        this.userId = userId;
         this.nickname = nickname;
         this.role = role;
     }

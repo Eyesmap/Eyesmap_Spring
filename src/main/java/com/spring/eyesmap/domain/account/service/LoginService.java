@@ -50,7 +50,7 @@ public class LoginService {
             account = signUp(providerId);
         }
 
-        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getId()));
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(account.getUserId()));
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
         ResponseDto responseDto = new ResponseDto("로그인 성공");
@@ -80,7 +80,7 @@ public class LoginService {
         String nickName = kakaoUserInfo.getNickName();
 
         Account signInAccount = Account.builder()
-                .id(kakao_id)
+                .userId(kakao_id)
                 .nickname(nickName)
                 .role(Role.ROLE_USER)
                 .build();
@@ -89,6 +89,7 @@ public class LoginService {
         return signInAccount;
     }
 
+    // get userinfo to use SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     // get userInfo to kakao
     public Account getUserInfo(Long providerId){
         Map<String, Object> userAttributesByToken = getUserAttributesByToken(providerId);

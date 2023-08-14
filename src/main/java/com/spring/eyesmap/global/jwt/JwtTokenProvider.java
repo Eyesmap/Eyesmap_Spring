@@ -1,8 +1,14 @@
 package com.spring.eyesmap.global.jwt;
 
+import com.spring.eyesmap.global.security.AccountDetailsService;
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -11,6 +17,7 @@ import java.util.Random;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtTokenProvider {
     @Value("${jwt.access-token.expire-length}")
     private long accessTokenValidityInMilliseconds;
@@ -19,8 +26,11 @@ public class JwtTokenProvider {
     @Value("${jwt.token.secret-key}")
     private String secretKey;
 
-    public String createAccessToken(String payload){
-        return createToken(payload, accessTokenValidityInMilliseconds);
+    private final AccountDetailsService accountDetailsService;
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+
+    public String createAccessToken(String id){
+        return createToken(id, accessTokenValidityInMilliseconds);
     }
 
     public String createRefreshToken(){
@@ -42,7 +52,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getPayload(String token){
+    // header에서 token 뽑아서 넣으면 id 반환
+    public String getId(String token){
         try{
             return Jwts.parser()
                     .setSigningKey(secretKey)
@@ -56,6 +67,7 @@ public class JwtTokenProvider {
         }
     }
 
+    // 만료 시간 확인
     public boolean validateToken(String token){
         try{
             Jws<Claims> claimsJws = Jwts.parser()
@@ -67,4 +79,12 @@ public class JwtTokenProvider {
         }
     }
 
+    public String resolveToken(HttpServletRequest req) {
+        return req.getHeader(AUTHORIZATION_HEADER);
+    }
+
+    public Authentication getAuthentication(String token) {
+        UserDetails userDetails = accountDetailsService.loadUserByUsername(getId(token));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
 }
