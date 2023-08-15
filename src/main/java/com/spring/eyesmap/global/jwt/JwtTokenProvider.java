@@ -68,12 +68,15 @@ public class JwtTokenProvider {
     }
 
     // 만료 시간 확인
-    public boolean validateToken(String token){
+    public Boolean validateToken(String token){
         try{
             Jws<Claims> claimsJws = Jwts.parser()
                     .setSigningKey(secretKey)
                     .parseClaimsJws(token);
-            return !claimsJws.getBody().getExpiration().before(new Date());
+            if(!claimsJws.getBody().getExpiration().before(new Date())){
+                reCreateAccessToken(claimsJws.getBody().getSubject());
+            }
+            return true;
         }catch (JwtException | IllegalArgumentException exception){
             return false;
         }
@@ -95,6 +98,22 @@ public class JwtTokenProvider {
                 .getBody()
                 .getExpiration()
                 .getTime();
+    }
 
+    public String reCreateAccessToken(String id){
+
+        Claims claims = Jwts.claims().setSubject(id); // JWT payload 에 저장되는 정보단위
+        Date now = new Date();
+
+        //Access Token
+        String accessToken = Jwts.builder()
+                .setClaims(claims) // 정보 저장
+                .setIssuedAt(now) // 토큰 발행 시간 정보
+                .setExpiration(new Date(now.getTime() + accessTokenValidityInMilliseconds)) // set Expire Time
+                .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과
+                // signature 에 들어갈 secret값 세팅
+                .compact();
+
+        return accessToken;
     }
 }
