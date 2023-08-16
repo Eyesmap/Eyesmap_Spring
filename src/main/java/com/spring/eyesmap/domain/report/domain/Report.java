@@ -55,7 +55,7 @@ public class Report {
     @JoinColumn(name = "user_id")
     private Account account;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
 
