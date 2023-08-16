@@ -19,6 +19,8 @@ public class Image {
     private String id;
 
     private String url;
+    @Column(name = "image_name")
+    private String imgNm;
 
     @Enumerated(EnumType.STRING)
     private ImageSort imageSort; //damaged, repaird
@@ -28,8 +30,9 @@ public class Image {
     private Report report;
 
     @Builder
-    public Image(String url, ImageSort imageSort, Report report){
+    public Image(String url, String imgNm, ImageSort imageSort, Report report){
         this.url = url;
+        this.imgNm = imgNm;
         this.imageSort = imageSort;
         this.report = report;
     }

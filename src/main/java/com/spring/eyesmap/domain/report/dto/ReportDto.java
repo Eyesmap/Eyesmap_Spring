@@ -9,7 +9,7 @@ import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import org.springframework.data.domain.Sort;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,24 +19,15 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class ReportDto {
     @Data
     public static class ReportListRequest{
-        @JsonInclude(NON_NULL)
-        private Sort sort;
-        @JsonInclude(NON_NULL)
-        private ReportEnum.DamagedStatus damagedStatus;
         private String location;
-
-        public ReportListRequest(Sort sort){
-            this.sort = sort;
-        }
-        public ReportListRequest(ReportEnum.DamagedStatus damagedStatus){
-            this.damagedStatus = damagedStatus;
-        }
+        private String gpsX;
+        private String gpsY;
     }
 
     @Data
     public static class ReportListResponse{
         private String reportId;
-        private Sort sort;
+        private ReportEnum.Sort sort;
         private String contents;
         private ReportEnum.DamagedStatus damagedStatus;
         private String title;
@@ -59,7 +50,7 @@ public class ReportDto {
         @Enumerated(EnumType.STRING)
         private ReportEnum.Sort sort;
 
-        private String accountId; // 이후 토큰으로 변경
+        private Long accountId; // 이후 토큰으로 변경
     }
 
     @Getter
@@ -74,10 +65,10 @@ public class ReportDto {
         @Enumerated(EnumType.STRING)
         private ReportEnum.Sort sort;
         private List<String> imageUrls;
-        private String accountId;
+        private Long accountId;
 
         @Builder
-        public CreateReportResponse(Location location, Report report, List<String> imageUrls, String accountId){
+        public CreateReportResponse(Location location, Report report, List<String> imageUrls, Long accountId){
             this.address = location.getAddress();
             this.gpsX = location.getGpsX();
             this.gpsY = location.getGpsY();
@@ -123,5 +114,13 @@ public class ReportDto {
 
             this.imageUrls = imageUrls;
         }
+    }
+    @Getter
+    @RequiredArgsConstructor
+    public static class DeleteReportRequest{
+        private Long userId;
+        private String reportId;
+        @Enumerated(EnumType.STRING)
+        private ReportEnum.DeleteReason deleteReason;
     }
 }

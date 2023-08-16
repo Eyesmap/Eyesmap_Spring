@@ -15,4 +15,7 @@ public class ReportEnum {
     public enum DamagedStatus{
         NORMAL, BAD, SEVERE
     }
+    public enum DeleteReason{
+        FALSE_REPORT, DUPLICATE
+    }
 }

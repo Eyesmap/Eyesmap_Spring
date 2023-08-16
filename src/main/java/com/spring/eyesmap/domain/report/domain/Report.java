@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@DynamicInsert
 public class Report {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -42,7 +44,7 @@ public class Report {
     private String contents;
     private String title;
 
-//    private Integer gu;//구 번호
+    private Integer gu;//구 번호
 
     @CreatedDate
     @Column(updatable = false, name = "report_date", nullable = false)
@@ -50,12 +52,16 @@ public class Report {
     private LocalDateTime reportDate;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private Account account;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
+
+    @Column(name = "delete_request_num")
+    @ColumnDefault("0")
+    private Integer deleteRequestNum;
 
     @Builder
     public Report(ReportEnum.Sort sort, ReportEnum.DamagedStatus damagedStatus, ReportEnum.ReportedStatus reportedStatus, String contents, String title, Account account, Location location){
@@ -67,5 +73,9 @@ public class Report {
         this.account = account;
         this.location = location;
 
+    }
+
+    public void updateDeleteRequestNum(){
+        this.deleteRequestNum++;
     }
 }

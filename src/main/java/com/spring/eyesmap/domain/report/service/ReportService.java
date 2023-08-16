@@ -12,4 +12,6 @@ import java.util.List;
 public interface ReportService {
     ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFiles, ReportDto.CreateReportRequest createReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException;
     ReportDto.ReportResponse  getReport(String reportId);
+//    ReportDto.ReportListResponse getReportList(ReportDto.ReportListRequest reportListRequest);
+    void deleteReport(ReportDto.DeleteReportRequest deleteReportRequest);
 }

@@ -21,27 +21,32 @@ public class ReportController {
     @PostMapping("/damage")
     public BaseResponse<ReportDto.CreateReportResponse> createReportDamaged(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateReportRequest createReportRequest) throws IOException {
         final ReportEnum.ReportedStatus reportedStatusDamaged = ReportEnum.ReportedStatus.DAMAGE;
-        final ImageSort imageSortDamaged = ImageSort.Damaged;
+        final ImageSort imageSortDamaged = ImageSort.DAMAGED;
         return new BaseResponse<>(reportService.createReport(images, createReportRequest, reportedStatusDamaged, imageSortDamaged));
     }
 
     @PostMapping("/restoration")
     public BaseResponse<ReportDto.CreateReportResponse> createReportRestored(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateReportRequest createReportRequest) throws IOException {
         ReportEnum.ReportedStatus reportedStatusRestored = ReportEnum.ReportedStatus.RESTORE;
-        final ImageSort imageSortRestored = ImageSort.Restored;
+        final ImageSort imageSortRestored = ImageSort.RESTORED;
 
         return new BaseResponse<>(reportService.createReport(images, createReportRequest, reportedStatusRestored, imageSortRestored));
     }
 
-    @GetMapping("/list")
-    public BaseResponse<Void> getReportList() {
-
-
-        return new BaseResponse<>();
-    }
     @GetMapping("/{report-id}")
     public BaseResponse<ReportDto.ReportResponse> getReport(@PathVariable(name = "report-id") String reportId) {
 
         return new BaseResponse<>(reportService.getReport(reportId));
     }
+
+    @DeleteMapping("/delete")
+    public BaseResponse<Void> deleteReport(@RequestBody ReportDto.DeleteReportRequest deleteReportRequest){
+        reportService.deleteReport(deleteReportRequest);
+        return new BaseResponse<>();
+    }
+//    @GetMapping("/list")
+//    public BaseResponse<ReportDto.ReportListResponse> getReportList(@RequestBody ReportDto.ReportListRequest reportListRequest) {
+//
+//        return new BaseResponse<>(reportService.getReportList(reportListRequest));
+//    }
 }

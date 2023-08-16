@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 public class Account {
 
     @Id
-    private String id;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column
     private String nickname;
@@ -20,9 +21,10 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
     @Builder
-    public Account(String id, String nickname, Role role){
-        this.id = id;
+    public Account(Long userId, String nickname, Role role){
+        this.userId = userId;
         this.nickname = nickname;
         this.role = role;
     }
