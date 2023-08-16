@@ -64,8 +64,9 @@ public class Report {
     private Integer deleteRequestNum;
 
     @Builder
-    public Report(ReportEnum.Sort sort, ReportEnum.DamagedStatus damagedStatus, ReportEnum.ReportedStatus reportedStatus, String contents, String title, Account account, Location location){
+    public Report(ReportEnum.Sort sort, Integer gu, ReportEnum.DamagedStatus damagedStatus, ReportEnum.ReportedStatus reportedStatus, String contents, String title, Account account, Location location){
         this.sort = sort;
+        this.gu = gu;
         this.damagedStatus = damagedStatus;
         this.reportedStatus = reportedStatus;
         this.contents = contents;

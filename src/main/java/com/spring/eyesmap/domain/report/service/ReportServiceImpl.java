@@ -13,6 +13,7 @@ import com.spring.eyesmap.domain.report.repository.LocationRepository;
 import com.spring.eyesmap.domain.report.repository.ReportDeletionRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
+import com.spring.eyesmap.global.enumeration.DistrictNum;
 import com.spring.eyesmap.global.enumeration.ImageSort;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
 import com.spring.eyesmap.global.exception.CustomException;
@@ -25,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,16 +47,16 @@ public class ReportServiceImpl implements ReportService{
         String dirNm = "report/"+reportedStatus + "/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
         System.out.println(dirNm);
         Location location;
-
+        String address = createReportRequest.getAddress();
         if(reportedStatus == ReportEnum.ReportedStatus.DAMAGE){
              location = Location.builder() //중복 허용 불가
-                    .address(createReportRequest.getAddress())
+                    .address(address)
                     .gpsX(createReportRequest.getGpsX())
                     .gpsY(createReportRequest.getGpsX())
                     .build();
             locationRepository.save(location);
         }else{
-            location = locationRepository.findByAddress(createReportRequest.getAddress());
+            location = locationRepository.findByAddress(address).orElseThrow(() -> new CustomException());
         }
         System.out.println(createReportRequest.getAccountId());
         Account account = accountRepository.findByUserId(createReportRequest.getAccountId())
@@ -70,6 +73,7 @@ public class ReportServiceImpl implements ReportService{
                         .title(createReportRequest.getTitle())
                         .sort(createReportRequest.getSort())
                         .account(account)
+                        .gu(getGu(address))
                         .damagedStatus(createReportRequest.getDamagedStatus())
                 .build();
 
@@ -93,6 +97,19 @@ public class ReportServiceImpl implements ReportService{
                 .imageUrls(imgUrls)
                 .accountId(account.getUserId())
                 .build();
+    }
+    private Integer getGu(String address){
+        String pattern = "서울(?:시|특별시)? ?(\\S+)구\\b";
+
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(address);
+
+        if (matcher.find()) {
+            String gu = matcher.group(1);
+            System.out.println(gu);
+            return DistrictNum.nameOf(gu).getNum();
+        }
+        throw new CustomException();
     }
 
     @Override
