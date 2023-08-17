@@ -1,5 +1,6 @@
 package com.spring.eyesmap.domain.account.service;
-import com.spring.eyesmap.domain.account.repository.Account;
+
+import com.spring.eyesmap.domain.account.domain.Account;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.enumeration.Role;
 import jakarta.servlet.http.HttpSession;

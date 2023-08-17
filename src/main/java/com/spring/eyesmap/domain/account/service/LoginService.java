@@ -1,32 +1,21 @@
 package com.spring.eyesmap.domain.account.service;
 
+import com.spring.eyesmap.domain.account.domain.Account;
 import com.spring.eyesmap.domain.account.dto.LoginResponseDto;
-import com.spring.eyesmap.domain.account.repository.Account;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.dto.ResponseDto;
 import com.spring.eyesmap.global.enumeration.Role;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.jwt.JwtTokenProvider;
 import com.spring.eyesmap.global.oauth.KakaoUserInfo;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;

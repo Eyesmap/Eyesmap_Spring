@@ -1,6 +1,6 @@
 package com.spring.eyesmap.global.security;
 
-import com.spring.eyesmap.domain.account.repository.Account;
+import com.spring.eyesmap.domain.account.domain.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

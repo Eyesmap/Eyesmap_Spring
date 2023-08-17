@@ -6,7 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+
+@Entity(name = "account")
 @Getter
 @NoArgsConstructor
 public class Account {
@@ -21,11 +22,11 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-
     @Builder
     public Account(Long userId, String nickname, Role role){
         this.userId = userId;
         this.nickname = nickname;
         this.role = role;
     }
+
 }
