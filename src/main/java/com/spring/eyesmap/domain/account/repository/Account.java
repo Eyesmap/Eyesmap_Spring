@@ -1,4 +1,4 @@
-package com.spring.eyesmap.domain.account.domain;
+package com.spring.eyesmap.domain.account.repository;
 
 import com.spring.eyesmap.global.enumeration.Role;
 import jakarta.persistence.*;
@@ -6,8 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
-@Entity(name = "account")
+@Entity
 @Getter
 @NoArgsConstructor
 public class Account {
@@ -28,5 +27,4 @@ public class Account {
         this.nickname = nickname;
         this.role = role;
     }
-
 }
