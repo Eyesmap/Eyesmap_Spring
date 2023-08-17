@@ -19,9 +19,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class ReportDto {
     @Data
     public static class ReportListRequest{
-        private String location;
-        private String gpsX;
-        private String gpsY;
+        private String address;
     }
 
     @Data
@@ -32,8 +30,21 @@ public class ReportDto {
         private ReportEnum.DamagedStatus damagedStatus;
         private String title;
         private LocalDateTime reportDate;
-        private String userId;
+        private Long userId;
         private List<String> imageUrls;
+
+        public ReportListResponse(Report report, Long userId, List<String> imageUrls){
+            this.reportId = report.getReportId();
+            this.sort = report.getSort();
+            this.contents = report.getContents();
+            this.damagedStatus = report.getDamagedStatus();
+            this.reportDate = report.getReportDate();
+            this.title = report.getTitle();
+            this.sort = report.getSort();
+            this.contents = report.getContents();
+            this.userId = userId;
+            this.imageUrls = imageUrls;
+        }
     }
 
     @Getter

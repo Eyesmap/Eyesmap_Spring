@@ -124,10 +124,20 @@ public class ReportServiceImpl implements ReportService{
                 .imageUrls(imageUrls)
                 .build();
     }
-//    @Override
-//    public ReportDto.ReportListResponse getReportList(ReportDto.ReportListRequest reportListRequest){
-//
-//    }
+    @Override
+    public List<ReportDto.ReportListResponse> getDamageReportList(ReportDto.ReportListRequest reportListRequest){
+        String address = reportListRequest.getAddress();
+        final ReportEnum.ReportedStatus reportedStatus = ReportEnum.ReportedStatus.DAMAGE;
+
+        List<ReportDto.ReportListResponse> reportListResponses = reportRepository.findAllByGuAndReportedStatus(getGu(address), reportedStatus).stream().map
+                (report -> {
+                    List<String> imageUrls = imageRepository.findAllByReportReportId(report.getReportId())
+                    .stream().map(Image::getUrl).toList();
+                     return new ReportDto.ReportListResponse(report, report.getAccount().getUserId(), imageUrls);
+        }).collect(Collectors.toList());
+
+        return reportListResponses;
+    }
 
     @Override
     @Transactional

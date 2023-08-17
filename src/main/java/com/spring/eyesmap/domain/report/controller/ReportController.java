@@ -44,9 +44,9 @@ public class ReportController {
         reportService.deleteReport(deleteReportRequest);
         return new BaseResponse<>();
     }
-//    @GetMapping("/list")
-//    public BaseResponse<ReportDto.ReportListResponse> getReportList(@RequestBody ReportDto.ReportListRequest reportListRequest) {
-//
-//        return new BaseResponse<>(reportService.getReportList(reportListRequest));
-//    }
+    @GetMapping("/list")//get에서 post로 바꾸거나 requestBody를 param으로 받거나
+    public BaseResponse<List<ReportDto.ReportListResponse>> getReportList(@RequestBody ReportDto.ReportListRequest reportListRequest) {
+
+        return new BaseResponse<>(reportService.getDamageReportList(reportListRequest));
+    }
 }

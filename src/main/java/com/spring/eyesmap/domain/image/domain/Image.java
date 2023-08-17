@@ -36,4 +36,11 @@ public class Image {
         this.imageSort = imageSort;
         this.report = report;
     }
+
+    public Image(Image image) {
+        this.url = image.getUrl();
+        this.imgNm = image.getImgNm();
+        this.imageSort = image.getImageSort();
+        this.report = image.getReport();
+    }
 }
