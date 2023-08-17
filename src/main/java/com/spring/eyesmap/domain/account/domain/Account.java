@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
 @Entity(name = "account")
 @Getter
 @NoArgsConstructor
@@ -27,4 +28,5 @@ public class Account {
         this.nickname = nickname;
         this.role = role;
     }
+
 }
