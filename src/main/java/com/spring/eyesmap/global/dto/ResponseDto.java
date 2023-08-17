@@ -1,4 +1,4 @@
-package com.spring.eyesmap.domain.account.dto;
+package com.spring.eyesmap.global.dto;
 
 import lombok.Data;
 

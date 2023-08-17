@@ -3,7 +3,7 @@ package com.spring.eyesmap.domain.account.controller;
 import com.spring.eyesmap.domain.account.dto.LoginTestResponseDto;
 import com.spring.eyesmap.domain.account.dto.LogoutResponseDto;
 import com.spring.eyesmap.domain.account.service.LoginTestService;
-import com.spring.eyesmap.domain.account.dto.ResponseDto;
+import com.spring.eyesmap.global.dto.ResponseDto;
 import com.spring.eyesmap.global.exception.LoginFailedException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
