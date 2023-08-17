@@ -1,26 +1,22 @@
 package com.spring.eyesmap.global.exception;
 
-import com.spring.eyesmap.global.dto.ResponseDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.spring.eyesmap.global.response.BaseResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class CustomHandler {
     @ExceptionHandler(LoginFailedException.class)
-    public ResponseEntity<ResponseDto> loginFailedException (
+    public BaseResponse<Void> loginFailedException (
             LoginFailedException e) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ResponseDto("로그인 실패", e.getClass().getName()));
+        return new BaseResponse<>("로그인 실패");
     }
 
     @ExceptionHandler(NotFoundAccountException.class)
-    public ResponseEntity<ResponseDto> notFoundAccountException (
+    public BaseResponse<Void> notFoundAccountException (
             NotFoundAccountException e) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ResponseDto("해당 사용자 없음", e.getClass().getName()));
+        return new BaseResponse<>("계정을 찾을 수 없음");
     }
 }
