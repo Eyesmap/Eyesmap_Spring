@@ -3,7 +3,7 @@ package com.spring.eyesmap.domain.account.service;
 import com.spring.eyesmap.domain.account.domain.Account;
 import com.spring.eyesmap.domain.account.dto.LoginResponseDto;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
-import com.spring.eyesmap.global.dto.ResponseDto;
+import com.spring.eyesmap.domain.account.dto.ResponseDto;
 import com.spring.eyesmap.global.enumeration.Role;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.jwt.JwtTokenProvider;
