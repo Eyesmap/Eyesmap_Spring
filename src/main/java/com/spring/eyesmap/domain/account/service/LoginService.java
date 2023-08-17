@@ -64,6 +64,7 @@ public class LoginService {
     }
 
 
+    @Transactional
     private Account signUp(Long providerId){
 //        if(!provider.equals("kakao")){
 //            throw new IllegalArgumentException("잘못된 접근입니다.");

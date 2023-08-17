@@ -1,10 +1,6 @@
 package com.spring.eyesmap.domain.account.dto;
 
-import com.spring.eyesmap.domain.report.domain.Report;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
@@ -50,4 +46,16 @@ public class AccountDto {
         private String reportId;
         private String imageUrl;
     }
+
+    @Data
+    @Getter
+    public static class RankingResponseDto {
+        List<RankingList> rankingList;
+        @Builder
+        public RankingResponseDto(List<RankingList> rankingList){
+            this.rankingList = rankingList;
+        }
+    }
+
+
 }

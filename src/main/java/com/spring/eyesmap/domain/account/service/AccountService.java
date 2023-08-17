@@ -2,6 +2,7 @@ package com.spring.eyesmap.domain.account.service;
 
 import com.spring.eyesmap.domain.account.domain.Account;
 import com.spring.eyesmap.domain.account.dto.AccountDto;
+import com.spring.eyesmap.domain.account.dto.RankingList;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.domain.image.domain.Image;
 import com.spring.eyesmap.domain.image.repository.ImageRepository;
@@ -14,6 +15,8 @@ import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 
 @Service
@@ -25,6 +28,7 @@ public class AccountService {
     private final ImageRepository imageRepository;
     private final ReportDangerourCntRepository reportDangerourCntRepository;
 
+    @Transactional
     public AccountDto.ReportListResponseDto fetchReportList() {
         // get user
         Long userId = SecurityUtil.getCurrentAccountId();
@@ -48,6 +52,7 @@ public class AccountService {
                 .build();
     }
 
+    @Transactional
     public AccountDto.DangerousCntListResponseDto fetchDangerousCntList() {
         // get user
         Long userId = null;
@@ -68,6 +73,15 @@ public class AccountService {
         }
         return AccountDto.DangerousCntListResponseDto.builder()
                 .reportList(responseReportLists)
+                .build();
+    }
+
+    @Transactional
+    public AccountDto.RankingResponseDto fetchRankingList() {
+        List<RankingList> rankingList = accountRepository.findTop10Ranking();
+
+        return AccountDto.RankingResponseDto.builder()
+                .rankingList(rankingList)
                 .build();
     }
 }

@@ -26,4 +26,11 @@ public class AccountController {
         AccountDto.DangerousCntListResponseDto dangerousCntListResponseDto = accountService.fetchDangerousCntList();
         return new BaseResponse<>(dangerousCntListResponseDto);
     }
+
+    // 명예의 전당 랭킹 조회
+    @GetMapping("/api/account/ranking/list")
+    public BaseResponse<AccountDto.RankingResponseDto> fetchRankingList(){
+        AccountDto.RankingResponseDto rankingResponseDto = accountService.fetchRankingList();
+        return new BaseResponse<>(rankingResponseDto);
+    }
 }
