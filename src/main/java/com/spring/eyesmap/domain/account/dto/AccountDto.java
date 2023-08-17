@@ -1,7 +1,12 @@
 package com.spring.eyesmap.domain.account.dto;
 
+import com.spring.eyesmap.domain.report.domain.Report;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+
+import java.util.List;
 
 public class AccountDto {
 
@@ -18,4 +23,31 @@ public class AccountDto {
     }
 
 
+    @Data
+    @Getter
+    public static class ReportListResponseDto {
+        private List<MyPageList> reportList;
+        @Builder
+        public ReportListResponseDto(List<MyPageList> reportList){
+            this.reportList = reportList;
+        }
+    }
+
+    @Data
+    @Getter
+    public static class DangerousCntListResponseDto {
+        private List<MyPageList> reportList;
+        @Builder
+        public DangerousCntListResponseDto(List<MyPageList> reportList){
+            this.reportList = reportList;
+        }
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class MyPageList{
+
+        private String reportId;
+        private String imageUrl;
+    }
 }

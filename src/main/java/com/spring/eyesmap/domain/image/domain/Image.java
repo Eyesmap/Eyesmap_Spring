@@ -25,7 +25,7 @@ public class Image {
     @Enumerated(EnumType.STRING)
     private ImageSort imageSort; //damaged, repaird
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "report_id")
     private Report report;
 
