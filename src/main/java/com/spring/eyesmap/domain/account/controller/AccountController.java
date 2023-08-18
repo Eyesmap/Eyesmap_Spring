@@ -40,9 +40,17 @@ public class AccountController {
         return new BaseResponse<>(rankingResponseDto);
     }
 
+    // 프로필 사진 변경
     @PostMapping("/api/account/profile/image/update")
     public BaseResponse<Void> updateProfileImage(@RequestPart("image") MultipartFile image) throws IOException {
         accountService.updateProfileImage(image);
+        return new BaseResponse<>();
+    }
+
+    // 기본 프로필 이미지로 변경(프로필 삭제)
+    @GetMapping("/api/account/profile/image/init")
+    public BaseResponse<Void> initProfileImage() throws IOException {
+        accountService.initProfileImage();
         return new BaseResponse<>();
     }
 }

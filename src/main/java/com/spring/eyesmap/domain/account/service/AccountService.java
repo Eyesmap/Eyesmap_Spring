@@ -125,4 +125,23 @@ public class AccountService {
         account.updateImage(imagesResponse.get(0).getImgUrl(), imagesResponse.get(0).getImgFileNm());
         accountRepository.save(account);
     }
+
+    @Transactional
+    public void initProfileImage() throws IOException {
+        // get user
+        Long userId = SecurityUtil.getCurrentAccountId();
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundAccountException());
+        log.info("accountId= "+ account.getUserId());
+
+        // delete old image
+        s3UploaderService.deleteFile(account.getImageName());
+        // update basic Image
+        account.updateImage(bucket +
+                ".s3." +
+                region +
+                ".amazonaws.com/" +
+                imageBasicUrl +
+                basicImageName, imageBasicUrl + basicImageName);
+    }
 }
