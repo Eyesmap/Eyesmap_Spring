@@ -17,7 +17,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByUserId(Long userId);
 
     @Query("SELECT new com.spring.eyesmap.domain.account.dto.RankingList(" +
-            "a.userId, a.nickname, COUNT(r.account)) " +
+            "a.userId, a.nickname, a.profileImageUrl, COUNT(r.account)) " +
             "FROM account a " +
             "INNER JOIN report r " +
             "ON a.userId = r.account.userId " +

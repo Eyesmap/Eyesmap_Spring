@@ -5,7 +5,9 @@ import com.spring.eyesmap.domain.account.dto.AccountDto;
 import com.spring.eyesmap.domain.account.dto.RankingList;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.domain.image.domain.Image;
+import com.spring.eyesmap.domain.image.dto.ImageDto;
 import com.spring.eyesmap.domain.image.repository.ImageRepository;
+import com.spring.eyesmap.domain.image.service.S3UploaderService;
 import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.domain.report.domain.ReportDangerousCnt;
 import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
@@ -14,9 +16,12 @@ import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -27,6 +32,15 @@ public class AccountService {
     private final ReportRepository reportRepository;
     private final ImageRepository imageRepository;
     private final ReportDangerourCntRepository reportDangerourCntRepository;
+    private final S3UploaderService s3UploaderService;
+    private final String imageBasicUrl = "account/profile/image/";
+    private final String basicImageName = "basicimage.jpeg";
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
 
     @Transactional
     public AccountDto.ReportListResponseDto fetchReportList() {
@@ -83,5 +97,32 @@ public class AccountService {
         return AccountDto.RankingResponseDto.builder()
                 .rankingList(rankingList)
                 .build();
+    }
+
+    @Transactional
+    public void updateProfileImage(MultipartFile image) throws IOException {
+        // get user
+        Long userId = SecurityUtil.getCurrentAccountId();
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundAccountException());
+        log.info("accountId= "+ account.getUserId());
+
+        log.info("basicUrlName= "+imageBasicUrl + basicImageName);
+
+        // not basicImage
+        if (!account.getImageName().equals(imageBasicUrl + basicImageName)){
+            log.info("before deleteFile= "+ account.getImageName());
+            // delete old image in s3
+            s3UploaderService.deleteFile(account.getImageName());
+            log.info("after deleteFile");
+        }
+
+        // store new image in s3
+        List<MultipartFile> imageList = new ArrayList<>();
+        imageList.add(image);
+        List<ImageDto.S3UploadResponse> imagesResponse = s3UploaderService.upload(imageList, imageBasicUrl + userId.toString());
+
+        account.updateImage(imagesResponse.get(0).getImgUrl(), imagesResponse.get(0).getImgFileNm());
+        accountRepository.save(account);
     }
 }

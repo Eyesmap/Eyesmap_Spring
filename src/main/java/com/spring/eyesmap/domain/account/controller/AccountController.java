@@ -6,7 +6,13 @@ import com.spring.eyesmap.global.response.BaseResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,5 +38,11 @@ public class AccountController {
     public BaseResponse<AccountDto.RankingResponseDto> fetchRankingList(){
         AccountDto.RankingResponseDto rankingResponseDto = accountService.fetchRankingList();
         return new BaseResponse<>(rankingResponseDto);
+    }
+
+    @PostMapping("/api/account/profile/image/update")
+    public BaseResponse<Void> updateProfileImage(@RequestPart("image") MultipartFile image) throws IOException {
+        accountService.updateProfileImage(image);
+        return new BaseResponse<>();
     }
 }
