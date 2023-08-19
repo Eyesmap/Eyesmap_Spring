@@ -63,6 +63,12 @@ public class ReportDto {
 
         private Long accountId; // 이후 토큰으로 변경
     }
+    @Getter
+    @Builder
+    public static class CreateRestoreReportRequest{
+        private String reportId;
+        private Long accountId; // 이후 토큰으로 변경
+    }
 
     @Getter
     public static class CreateReportResponse{

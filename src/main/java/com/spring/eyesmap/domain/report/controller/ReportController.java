@@ -26,11 +26,11 @@ public class ReportController {
     }
 
     @PostMapping("/restoration")
-    public BaseResponse<ReportDto.CreateReportResponse> createReportRestored(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateReportRequest createReportRequest) throws IOException {
+    public BaseResponse<ReportDto.CreateReportResponse> createReportRestored(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateRestoreReportRequest createRestoreReportRequest) throws IOException {
         ReportEnum.ReportedStatus reportedStatusRestored = ReportEnum.ReportedStatus.RESTORE;
         final ImageSort imageSortRestored = ImageSort.RESTORED;
 
-        return new BaseResponse<>(reportService.createReport(images, createReportRequest, reportedStatusRestored, imageSortRestored));
+        return new BaseResponse<>(reportService.createRestoreReport(images, createRestoreReportRequest, reportedStatusRestored, imageSortRestored));
     }
 
     @GetMapping("/{report-id}")

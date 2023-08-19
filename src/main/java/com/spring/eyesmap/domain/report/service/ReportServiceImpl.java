@@ -48,17 +48,18 @@ public class ReportServiceImpl implements ReportService{
         System.out.println(dirNm);
         Location location;
         String address = createReportRequest.getAddress();
-        if(reportedStatus == ReportEnum.ReportedStatus.DAMAGE){
-             location = Location.builder() //중복 허용 불가
+
+        if (locationRepository.existsByAddress(address)) {
+            throw new CustomException();
+        }
+
+        location = Location.builder() //중복 허용 불가
                     .address(address)
                     .gpsX(createReportRequest.getGpsX())
                     .gpsY(createReportRequest.getGpsX())
                     .build();
             locationRepository.save(location);
-        }else{
-            location = locationRepository.findByAddress(address).orElseThrow(() -> new CustomException());
-        }
-        System.out.println(createReportRequest.getAccountId());
+
         Account account = accountRepository.findByUserId(createReportRequest.getAccountId())
         .orElseThrow(
                 () -> new CustomException() //로그인이랑 합치고 변경
@@ -77,27 +78,61 @@ public class ReportServiceImpl implements ReportService{
                         .damagedStatus(createReportRequest.getDamagedStatus())
                 .build();
 
-        reportRepository.save(report);
-        List<String> imgUrls = new ArrayList<>();
-        List<ImageDto.S3UploadResponse> imagesResponse = s3UploaderService.upload(multipartFiles, dirNm);
-        List<Image> uploadedImage = imagesResponse.stream()
-                .map(imageResponse -> {
-                    imgUrls.add(imageResponse.getImgUrl());
-                    return Image.builder()
-                        .url(imageResponse.getImgUrl())
-                            .imgNm(imageResponse.getImgFileNm())
-                        .imageSort(imageSort)
-                        .report(report)
-                        .build();}).collect(Collectors.toList());
-        imageRepository.saveAll(uploadedImage);
-
-        return ReportDto.CreateReportResponse.builder()
-                .location(location)
-                .report(report)
-                .imageUrls(imgUrls)
-                .accountId(account.getUserId())
-                .build();
+        return saveReport(multipartFiles, report, location, account, dirNm, imageSort);
     }
+    @Override
+    public ReportDto.CreateReportResponse createRestoreReport(List<MultipartFile> multipartFiles, ReportDto.CreateRestoreReportRequest createRestoreReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
+        Report report = reportRepository.findById(createRestoreReportRequest.getReportId()).orElseThrow(() -> new CustomException());
+        String dirNm = "report/" + reportedStatus + "/" + report.getSort() + "/" + report.getDamagedStatus();
+        System.out.println(dirNm);
+
+        Location location = report.getLocation();
+
+        Account account = accountRepository.findByUserId(createRestoreReportRequest.getAccountId())
+                .orElseThrow(
+                        () -> new CustomException() //로그인이랑 합치고 변경
+                );
+        Report restoredReport = Report.builder()
+                .contents(report.getContents())
+                .damagedStatus(report.getDamagedStatus())
+                .reportedStatus(reportedStatus)
+                .location(location)
+                .title(report.getTitle())
+                .sort(report.getSort())
+                .account(account)
+                .gu(getGu(location.getAddress()))
+                .damagedStatus(report.getDamagedStatus())
+                .build();
+
+        return saveReport(multipartFiles, restoredReport, location, account, dirNm, imageSort);
+
+    }
+
+    private ReportDto.CreateReportResponse saveReport(List<MultipartFile> multipartFiles, Report report, Location location,
+                                                     Account account, String dirNm, ImageSort imageSort) throws IOException {
+
+            reportRepository.save(report);
+            List<String> imgUrls = new ArrayList<>();
+            List<ImageDto.S3UploadResponse> imagesResponse = s3UploaderService.upload(multipartFiles, dirNm);
+            List<Image> uploadedImage = imagesResponse.stream()
+                    .map(imageResponse -> {
+                        imgUrls.add(imageResponse.getImgUrl());
+                        return Image.builder()
+                                .url(imageResponse.getImgUrl())
+                                .imgNm(imageResponse.getImgFileNm())
+                                .imageSort(imageSort)
+                                .report(report)
+                                .build();}).collect(Collectors.toList());
+            imageRepository.saveAll(uploadedImage);
+
+            return ReportDto.CreateReportResponse.builder()
+                    .location(location)
+                    .report(report)
+                    .imageUrls(imgUrls)
+                    .accountId(account.getUserId())
+                    .build();
+    }
+
     private Integer getGu(String address){
         String pattern = "서울(?:시|특별시)? ?(\\S+)구\\b";
 
@@ -166,5 +201,7 @@ public class ReportServiceImpl implements ReportService{
             locationRepository.deleteById(report.getLocation().getId());
         }
     }
+
+    //관리자 -> 신고 복구 들어오면 삭제(해당 복구 신고 들어온 거 다 삭제)
 
 }
