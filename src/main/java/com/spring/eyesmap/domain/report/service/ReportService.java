@@ -15,4 +15,6 @@ public interface ReportService {
     ReportDto.ReportResponse  getReport(String reportId);
     List<ReportDto.ReportListResponse> getDamageReportList(ReportDto.ReportListRequest reportListRequest);
     void deleteReport(ReportDto.DeleteReportRequest deleteReportRequest);
+    void createReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest);
+    void deleteRreportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest);
 }

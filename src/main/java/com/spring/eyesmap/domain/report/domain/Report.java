@@ -63,6 +63,10 @@ public class Report {
     @ColumnDefault("0")
     private Integer deleteRequestNum;
 
+    @Column(name = "report_dangerous_num")
+    @ColumnDefault("0")
+    private Integer reportDangerousNum;
+
     @Builder
     public Report(ReportEnum.Sort sort, Integer gu, ReportEnum.DamagedStatus damagedStatus, ReportEnum.ReportedStatus reportedStatus, String contents, String title, Account account, Location location){
         this.sort = sort;
@@ -78,5 +82,8 @@ public class Report {
 
     public void updateDeleteRequestNum(){
         this.deleteRequestNum++;
+    }
+    public void updateReportDangerousNum(Integer reportDangerousNum){
+        this.reportDangerousNum = reportDangerousNum;
     }
 }

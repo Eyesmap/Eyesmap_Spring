@@ -7,9 +7,11 @@ import com.spring.eyesmap.domain.image.repository.ImageRepository;
 import com.spring.eyesmap.domain.image.service.S3UploaderService;
 import com.spring.eyesmap.domain.report.domain.Location;
 import com.spring.eyesmap.domain.report.domain.Report;
+import com.spring.eyesmap.domain.report.domain.ReportDangerousCnt;
 import com.spring.eyesmap.domain.report.domain.ReportDeletion;
 import com.spring.eyesmap.domain.report.dto.ReportDto;
 import com.spring.eyesmap.domain.report.repository.LocationRepository;
+import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportDeletionRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
@@ -39,6 +41,7 @@ public class ReportServiceImpl implements ReportService{
     private final LocationRepository locationRepository;
     private final ImageRepository imageRepository;
     private final ReportDeletionRepository reportDeletionRepository;
+    private final ReportDangerourCntRepository reportDangerourCntRepository;
 
     private final Integer REPORT_REQUEST_NUM = 3; //
 
@@ -200,6 +203,29 @@ public class ReportServiceImpl implements ReportService{
             reportRepository.deleteById(reportId);//신고 db에서 삭제
             locationRepository.deleteById(report.getLocation().getId());
         }
+    }
+    @Override
+    @Transactional
+    public void createReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+        if (reportDangerourCntRepository.existsByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())) {
+            throw new CustomException();
+        }
+        Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+                .orElseThrow(()->new CustomException());
+        ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, reportDangerousCntRequest.getUserId());
+        reportDangerourCntRepository.save(reportDangerousCnt);
+        report.updateReportDangerousNum(report.getReportDangerousNum() + 1);
+    }
+    @Override
+    @Transactional
+    public void deleteRreportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+        ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())
+               .orElseThrow(() -> new CustomException());
+        Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+                .orElseThrow(()->new CustomException());
+        report.updateReportDangerousNum(report.getReportDangerousNum() - 1);
+        reportDangerourCntRepository.delete(reportDangerousCnt);//status를 넣고 목록도 status가 1인 것만 조회하도록 논의
+
     }
 
     //관리자 -> 신고 복구 들어오면 삭제(해당 복구 신고 들어온 거 다 삭제)
