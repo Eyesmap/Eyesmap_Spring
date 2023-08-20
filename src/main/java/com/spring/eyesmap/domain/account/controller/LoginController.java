@@ -1,16 +1,14 @@
 package com.spring.eyesmap.domain.account.controller;
 
-import com.spring.eyesmap.domain.account.dto.LoginResponseDto;
-import com.spring.eyesmap.domain.account.dto.LogoutResponseDto;
+import com.spring.eyesmap.domain.account.dto.AccountDto;
 import com.spring.eyesmap.domain.account.service.LoginService;
-import com.spring.eyesmap.global.dto.ResponseDto;
-import com.spring.eyesmap.global.exception.LoginFailedException;
-import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
+import com.spring.eyesmap.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,15 +17,15 @@ public class LoginController {
     private final LoginService loginService;
 
     @GetMapping("/login/oauth/{providerid}")
-    public ResponseEntity<LoginResponseDto> login(@PathVariable("providerid") Long providerId) {
+    public BaseResponse<AccountDto.LoginResponseDto> login(@PathVariable("providerid") Long providerId) {
         // login process
-        LoginResponseDto loginResponseDto = loginService.loginWithToken(providerId);
-        return ResponseEntity.ok().body(loginResponseDto);
+        AccountDto.LoginResponseDto loginResponseDto = loginService.loginWithToken(providerId);
+        return new BaseResponse<>(loginResponseDto);
     }
 
     @GetMapping("/api/logout")
-    public ResponseEntity<LogoutResponseDto> logout(@RequestHeader(value = "Authorization") String authorization){
+    public BaseResponse<Void> logout(@RequestHeader(value = "Authorization") String authorization){
         loginService.logout(authorization);
-        return ResponseEntity.ok().body(new LogoutResponseDto(new ResponseDto("로그아웃 성공")));
+        return new BaseResponse<>();
     }
 }

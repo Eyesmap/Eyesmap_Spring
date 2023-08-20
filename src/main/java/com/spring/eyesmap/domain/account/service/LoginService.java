@@ -1,9 +1,8 @@
 package com.spring.eyesmap.domain.account.service;
 
 import com.spring.eyesmap.domain.account.domain.Account;
-import com.spring.eyesmap.domain.account.dto.LoginResponseDto;
+import com.spring.eyesmap.domain.account.dto.AccountDto;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
-import com.spring.eyesmap.global.dto.ResponseDto;
 import com.spring.eyesmap.global.enumeration.Role;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.jwt.JwtTokenProvider;
@@ -37,7 +36,7 @@ public class LoginService {
     private long refreshTokenValidityInMilliseconds;
 
     @Transactional
-    public LoginResponseDto loginWithToken(Long providerId) {
+    public AccountDto.LoginResponseDto loginWithToken(Long providerId) {
         Account account = accountRepository.findById(providerId).orElse(null);
 
         // signUp
@@ -50,8 +49,7 @@ public class LoginService {
 
         redisTemplate.opsForValue().set("RT:"+account.getUserId(),refreshToken,refreshTokenValidityInMilliseconds, TimeUnit.MILLISECONDS);
 
-        ResponseDto responseDto = new ResponseDto("로그인 성공");
-        return new LoginResponseDto(responseDto, accessToken, refreshToken);
+        return new AccountDto.LoginResponseDto(accessToken, refreshToken);
     }
 
     private Map<String, Object> getUserAttributesByToken(Long providerId){
