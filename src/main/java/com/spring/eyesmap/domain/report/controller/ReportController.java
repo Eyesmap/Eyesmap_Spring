@@ -13,19 +13,19 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/report")
+@RequestMapping("/api/report")
 @RequiredArgsConstructor
 public class ReportController {
     private final ReportService reportService;
 
-    @PostMapping("/damage")
+    @PostMapping("create/damage")
     public BaseResponse<ReportDto.CreateReportResponse> createReportDamaged(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateReportRequest createReportRequest) throws IOException {
         final ReportEnum.ReportedStatus reportedStatusDamaged = ReportEnum.ReportedStatus.DAMAGE;
         final ImageSort imageSortDamaged = ImageSort.DAMAGED;
         return new BaseResponse<>(reportService.createReport(images, createReportRequest, reportedStatusDamaged, imageSortDamaged));
     }
 
-    @PostMapping("/restoration")
+    @PostMapping("create/restoration")
     public BaseResponse<ReportDto.CreateReportResponse> createReportRestored(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateRestoreReportRequest createRestoreReportRequest) throws IOException {
         ReportEnum.ReportedStatus reportedStatusRestored = ReportEnum.ReportedStatus.RESTORE;
         final ImageSort imageSortRestored = ImageSort.RESTORED;
@@ -44,7 +44,7 @@ public class ReportController {
         reportService.deleteReport(deleteReportRequest);
         return new BaseResponse<>();
     }
-    @GetMapping("/list")//get에서 post로 바꾸거나 requestBody를 param으로 받거나
+    @PostMapping("/fetch")//get에서 post로 바꾸거나 requestBody를 param으로 받거나
     public BaseResponse<List<ReportDto.ReportListResponse>> getReportList(@RequestBody ReportDto.ReportListRequest reportListRequest) {
 
         return new BaseResponse<>(reportService.getDamageReportList(reportListRequest));
