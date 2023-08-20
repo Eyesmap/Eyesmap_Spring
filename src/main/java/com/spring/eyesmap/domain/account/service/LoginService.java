@@ -29,11 +29,20 @@ public class LoginService {
     private static final String BEARER_TYPE = "Bearer";
     private final AccountRepository accountRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate redisTemplate;
+    private final String imageName = "basicimage.jpeg";
+
     @Value("${kakao.admin-key}")
     private String adminKey;
-    private final RedisTemplate redisTemplate;
+
     @Value("${jwt.refresh-token.expire-length}")
     private long refreshTokenValidityInMilliseconds;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
 
     @Transactional
     public AccountDto.LoginResponseDto loginWithToken(Long providerId) {
@@ -64,6 +73,7 @@ public class LoginService {
     }
 
 
+    @Transactional
     private Account signUp(Long providerId){
 //        if(!provider.equals("kakao")){
 //            throw new IllegalArgumentException("잘못된 접근입니다.");
@@ -78,6 +88,12 @@ public class LoginService {
                 .userId(kakao_id)
                 .nickname(nickName)
                 .role(Role.ROLE_USER)
+                .profileImageUrl(bucket +
+                        ".s3." +
+                        region +
+                        ".amazonaws.com/account/profile/image/" +
+                        imageName)
+                .imageName("account/profile/image/" + imageName)
                 .build();
 
         accountRepository.save(signInAccount);
