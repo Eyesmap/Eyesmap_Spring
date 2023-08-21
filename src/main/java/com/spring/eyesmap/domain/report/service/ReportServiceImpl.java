@@ -18,8 +18,7 @@ import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.enumeration.DistrictNum;
 import com.spring.eyesmap.global.enumeration.ImageSort;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
-import com.spring.eyesmap.global.exception.CustomException;
-import com.spring.eyesmap.global.response.BaseResponse;
+import com.spring.eyesmap.global.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +52,7 @@ public class ReportServiceImpl implements ReportService{
         String address = createReportRequest.getAddress();
 
         if (locationRepository.existsByAddress(address)) {
-            throw new CustomException();
+            throw new AlreadyReportException();
         }
 
         location = Location.builder() //중복 허용 불가
@@ -65,7 +64,7 @@ public class ReportServiceImpl implements ReportService{
 
         Account account = accountRepository.findByUserId(createReportRequest.getAccountId())
         .orElseThrow(
-                () -> new CustomException() //로그인이랑 합치고 변경
+                () -> new NotFoundAccountException()
         );
 
 
@@ -85,7 +84,7 @@ public class ReportServiceImpl implements ReportService{
     }
     @Override
     public ReportDto.CreateReportResponse createRestoreReport(List<MultipartFile> multipartFiles, ReportDto.CreateRestoreReportRequest createRestoreReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
-        Report report = reportRepository.findById(createRestoreReportRequest.getReportId()).orElseThrow(() -> new CustomException());
+        Report report = reportRepository.findById(createRestoreReportRequest.getReportId()).orElseThrow(() -> new NotFoundReportException());
         String dirNm = "report/" + reportedStatus + "/" + report.getSort() + "/" + report.getDamagedStatus();
         System.out.println(dirNm);
 
@@ -93,7 +92,7 @@ public class ReportServiceImpl implements ReportService{
 
         Account account = accountRepository.findByUserId(createRestoreReportRequest.getAccountId())
                 .orElseThrow(
-                        () -> new CustomException() //로그인이랑 합치고 변경
+                        () -> new NotFoundAccountException()
                 );
         Report restoredReport = Report.builder()
                 .contents(report.getContents())
@@ -147,12 +146,12 @@ public class ReportServiceImpl implements ReportService{
             System.out.println(gu);
             return DistrictNum.nameOf(gu).getNum();
         }
-        throw new CustomException();
+        throw new NotFoundLocationException();
     }
 
     @Override
     public ReportDto.ReportResponse getReport(String reportId){ // 상세
-        Report report = reportRepository.findById(reportId).orElseThrow(()-> new CustomException());
+        Report report = reportRepository.findById(reportId).orElseThrow(()-> new NotFoundReportException());
         List<String> imageUrls = imageRepository.findAllByReportReportId(reportId).stream()
                 .map((image) -> image.getUrl()).toList();
 
@@ -180,7 +179,7 @@ public class ReportServiceImpl implements ReportService{
     @Override
     @Transactional
     public void deleteReport(ReportDto.DeleteReportRequest deleteReportRequest){
-        Report report = reportRepository.findById(deleteReportRequest.getReportId()).orElseThrow(() -> new CustomException());
+        Report report = reportRepository.findById(deleteReportRequest.getReportId()).orElseThrow(() -> new NotFoundReportException());
         //ReportDeletionRepository 조합이 unique해야해
         report.updateDeleteRequestNum();
         String reportId = report.getReportId();
@@ -206,26 +205,22 @@ public class ReportServiceImpl implements ReportService{
     }
     @Override
     @Transactional
-    public void createReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+    public void createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
         if (reportDangerourCntRepository.existsByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())) {
-            throw new CustomException();
-        }
-        Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
-                .orElseThrow(()->new CustomException());
-        ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, reportDangerousCntRequest.getUserId());
-        reportDangerourCntRepository.save(reportDangerousCnt);
-        report.updateReportDangerousNum(report.getReportDangerousNum() + 1);
-    }
-    @Override
-    @Transactional
-    public void deleteRreportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
-        ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())
-               .orElseThrow(() -> new CustomException());
-        Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
-                .orElseThrow(()->new CustomException());
-        report.updateReportDangerousNum(report.getReportDangerousNum() - 1);
-        reportDangerourCntRepository.delete(reportDangerousCnt);//status를 넣고 목록도 status가 1인 것만 조회하도록 논의
+            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+                    .orElseThrow(()->new NotFoundReportException());
+            ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())
+                    .orElseThrow(() -> new NotFoundDangerousCntException());
 
+            report.updateReportDangerousNum(report.getReportDangerousNum() - 1);
+            reportDangerourCntRepository.delete(reportDangerousCnt);//status를 넣고 목록도 status가 1인 것만 조회하도록 논의
+        }else {
+            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+                    .orElseThrow(() -> new NotFoundReportException());
+            ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, reportDangerousCntRequest.getUserId());
+            reportDangerourCntRepository.save(reportDangerousCnt);
+            report.updateReportDangerousNum(report.getReportDangerousNum() + 1);
+        }
     }
 
     //관리자 -> 신고 복구 들어오면 삭제(해당 복구 신고 들어온 거 다 삭제)

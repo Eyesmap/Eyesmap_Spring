@@ -50,14 +50,9 @@ public class ReportController {
         return new BaseResponse<>(reportService.getDamageReportList(reportListRequest));
     }
 
-    @PostMapping("dangerouscnt/create")
-    public BaseResponse<Void> createReportDangerousCnt(@RequestBody ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
-        reportService.createReportDangeroutCnt(reportDangerousCntRequest);
-        return new BaseResponse<>();
-    }
-    @PostMapping("dangerouscnt/delete")
-    public BaseResponse<Void> deleteReportDangerousCnt(@RequestBody ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
-        reportService.deleteRreportDangeroutCnt(reportDangerousCntRequest);
+    @PostMapping("dangerouscnt")
+    public BaseResponse<Void> createOrCancelReportDangeroutCnt(@RequestBody ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+        reportService.createOrCancelReportDangeroutCnt(reportDangerousCntRequest);
         return new BaseResponse<>();
     }
 }

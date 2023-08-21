@@ -3,7 +3,6 @@ package com.spring.eyesmap.domain.report.service;
 import com.spring.eyesmap.domain.report.dto.ReportDto;
 import com.spring.eyesmap.global.enumeration.ImageSort;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
-import com.spring.eyesmap.global.response.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -15,6 +14,5 @@ public interface ReportService {
     ReportDto.ReportResponse  getReport(String reportId);
     List<ReportDto.ReportListResponse> getDamageReportList(ReportDto.ReportListRequest reportListRequest);
     void deleteReport(ReportDto.DeleteReportRequest deleteReportRequest);
-    void createReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest);
-    void deleteRreportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest);
+    void createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest);
 }
