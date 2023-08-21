@@ -19,4 +19,11 @@ public class CustomHandler {
 
         return new BaseResponse<>("계정을 찾을 수 없음");
     }
+
+    @ExceptionHandler(NotFoundEnumException.class)
+    public BaseResponse<Void> notFoundEnumException (
+            NotFoundEnumException e) {
+
+        return new BaseResponse<>("해당 enum은 존재하지 않음");
+    }
 }
