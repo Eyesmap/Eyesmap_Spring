@@ -49,16 +49,17 @@ public class ReportServiceImpl implements ReportService{
         String dirNm = "report/"+reportedStatus + "/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
         System.out.println(dirNm);
         Location location;
+        String gpsX = createReportRequest.getGpsX();
+        String gpsY = createReportRequest.getGpsY();
         String address = createReportRequest.getAddress();
-
-        if (locationRepository.existsByAddress(address)) {
+        if (locationRepository.existsByGpsXAndGpsY(gpsX, gpsY)) {
             throw new AlreadyReportException();
         }
 
         location = Location.builder() //중복 허용 불가
                     .address(address)
-                    .gpsX(createReportRequest.getGpsX())
-                    .gpsY(createReportRequest.getGpsX())
+                    .gpsX(gpsX)
+                    .gpsY(gpsY)
                     .build();
             locationRepository.save(location);
 
@@ -162,11 +163,10 @@ public class ReportServiceImpl implements ReportService{
                 .build();
     }
     @Override
-    public List<ReportDto.ReportListResponse> getDamageReportList(ReportDto.ReportListRequest reportListRequest){
-        String address = reportListRequest.getAddress();
+    public List<ReportDto.ReportListResponse> getDamageReportList(){
         final ReportEnum.ReportedStatus reportedStatus = ReportEnum.ReportedStatus.DAMAGE;
 
-        List<ReportDto.ReportListResponse> reportListResponses = reportRepository.findAllByGuAndReportedStatus(getGu(address), reportedStatus).stream().map
+        List<ReportDto.ReportListResponse> reportListResponses = reportRepository.findAllByReportedStatus(reportedStatus).stream().map
                 (report -> {
                     List<String> imageUrls = imageRepository.findAllByReportReportId(report.getReportId())
                     .stream().map(Image::getUrl).toList();

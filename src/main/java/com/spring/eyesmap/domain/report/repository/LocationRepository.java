@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location,String> {
-    Optional<Location> findByAddress(String address);
-    boolean existsByAddress(String address);
+    Optional<Location> findByGpsXAndGpsY(String gpsX, String gpsY);
+    boolean existsByGpsXAndGpsY(String gpsX, String gpsY);
 
 }
