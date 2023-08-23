@@ -17,10 +17,6 @@ import java.util.List;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class ReportDto {
-    @Data
-    public static class ReportListRequest{
-        private String address;
-    }
 
     @Data
     public static class ReportListResponse{

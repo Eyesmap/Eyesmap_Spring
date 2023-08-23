@@ -44,10 +44,9 @@ public class ReportController {
         reportService.deleteReport(deleteReportRequest);
         return new BaseResponse<>();
     }
-    @PostMapping("/fetch")//get에서 post로 바꾸거나 requestBody를 param으로 받거나
-    public BaseResponse<List<ReportDto.ReportListResponse>> getReportList(@RequestBody ReportDto.ReportListRequest reportListRequest) {
-
-        return new BaseResponse<>(reportService.getDamageReportList(reportListRequest));
+    @GetMapping("/fetch")
+    public BaseResponse<List<ReportDto.ReportListResponse>> getReportList() {
+        return new BaseResponse<>(reportService.getDamageReportList());
     }
 
     @PostMapping("dangerouscnt")
