@@ -1,9 +1,8 @@
 package com.spring.eyesmap.domain.account.service;
 
 import com.spring.eyesmap.domain.account.domain.Account;
-import com.spring.eyesmap.domain.account.dto.LoginResponseDto;
+import com.spring.eyesmap.domain.account.dto.AccountDto;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
-import com.spring.eyesmap.global.dto.ResponseDto;
 import com.spring.eyesmap.global.enumeration.Role;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.jwt.JwtTokenProvider;
@@ -30,14 +29,23 @@ public class LoginService {
     private static final String BEARER_TYPE = "Bearer";
     private final AccountRepository accountRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate redisTemplate;
+    private final String imageName = "basicimage.jpeg";
+
     @Value("${kakao.admin-key}")
     private String adminKey;
-    private final RedisTemplate redisTemplate;
+
     @Value("${jwt.refresh-token.expire-length}")
     private long refreshTokenValidityInMilliseconds;
 
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
+
     @Transactional
-    public LoginResponseDto loginWithToken(Long providerId) {
+    public AccountDto.LoginResponseDto loginWithToken(Long providerId) {
         Account account = accountRepository.findById(providerId).orElse(null);
 
         // signUp
@@ -50,8 +58,7 @@ public class LoginService {
 
         redisTemplate.opsForValue().set("RT:"+account.getUserId(),refreshToken,refreshTokenValidityInMilliseconds, TimeUnit.MILLISECONDS);
 
-        ResponseDto responseDto = new ResponseDto("로그인 성공");
-        return new LoginResponseDto(responseDto, accessToken, refreshToken);
+        return new AccountDto.LoginResponseDto(accessToken, refreshToken);
     }
 
     private Map<String, Object> getUserAttributesByToken(Long providerId){
@@ -66,6 +73,7 @@ public class LoginService {
     }
 
 
+    @Transactional
     private Account signUp(Long providerId){
 //        if(!provider.equals("kakao")){
 //            throw new IllegalArgumentException("잘못된 접근입니다.");
@@ -80,6 +88,12 @@ public class LoginService {
                 .userId(kakao_id)
                 .nickname(nickName)
                 .role(Role.ROLE_USER)
+                .profileImageUrl(bucket +
+                        ".s3." +
+                        region +
+                        ".amazonaws.com/account/profile/image/" +
+                        imageName)
+                .imageName("account/profile/image/" + imageName)
                 .build();
 
         accountRepository.save(signInAccount);

@@ -1,6 +1,5 @@
 package com.spring.eyesmap.domain.report.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spring.eyesmap.domain.report.domain.Location;
 import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
@@ -13,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class ReportDto {
 

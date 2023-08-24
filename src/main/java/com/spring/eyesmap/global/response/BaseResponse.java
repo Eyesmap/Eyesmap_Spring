@@ -2,7 +2,6 @@ package com.spring.eyesmap.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.spring.eyesmap.global.dto.ResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -25,15 +24,9 @@ public class BaseResponse<T> {
         this.result = result;
     }
 
-    public BaseResponse(ResponseDto responseDto) {
-        this.message = responseDto.getMessage();
-        this.exception = responseDto.getException();
-    }
-
-    public BaseResponse(ResponseDto responseDto, T result) {
-        this.message = responseDto.getMessage();
-        this.exception = responseDto.getException();
-        this.result = result;
+    public BaseResponse(String exception){
+        this.message = "예외 발생";
+        this.exception = exception;
     }
 
 }

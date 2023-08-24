@@ -2,7 +2,6 @@ package com.spring.eyesmap.domain.report.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.eyesmap.domain.account.domain.Account;
-import com.spring.eyesmap.domain.image.domain.Image;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
 import jakarta.persistence.*;
 import lombok.Builder;

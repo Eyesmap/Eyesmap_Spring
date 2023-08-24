@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface ReportDangerourCntRepository extends JpaRepository<ReportDangerousCnt, String>{
     Optional<ReportDangerousCnt> findByReportReportIdAndUserId(String reportId, Long userId);
     boolean existsByReportReportIdAndUserId(String reportId, Long userId);
+    List<ReportDangerousCnt> findByUserId(Long userId);
 }

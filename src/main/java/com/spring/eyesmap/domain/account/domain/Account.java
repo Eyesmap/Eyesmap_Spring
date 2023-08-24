@@ -22,11 +22,23 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column
+    private String profileImageUrl;
+
+    @Column
+    private String imageName;
+
     @Builder
-    public Account(Long userId, String nickname, Role role){
+    public Account(Long userId, String nickname, Role role, String profileImageUrl, String imageName){
         this.userId = userId;
         this.nickname = nickname;
         this.role = role;
+        this.profileImageUrl = profileImageUrl;
+        this.imageName = imageName;
     }
 
+    public void updateImage(String profileImageUrl, String imageName) {
+        this.profileImageUrl = profileImageUrl;
+        this.imageName = imageName;
+    }
 }
