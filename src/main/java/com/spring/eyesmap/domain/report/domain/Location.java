@@ -17,11 +17,11 @@ public class Location {
     @Column(name = "location_id", columnDefinition = "VARCHAR(255)")
     private String id;
     private String address;
-    private String gpsX;
-    private String gpsY;
+    private Double gpsX;
+    private Double gpsY;
 
     @Builder
-    public Location(String address, String gpsX, String gpsY){
+    public Location(String address, Double gpsX, Double gpsY){
         this.address = address;
         this.gpsX = gpsX;
         this.gpsY = gpsY;

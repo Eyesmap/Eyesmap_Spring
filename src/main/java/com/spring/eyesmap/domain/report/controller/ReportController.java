@@ -32,21 +32,24 @@ public class ReportController {
 
         return new BaseResponse<>(reportService.createRestoreReport(images, createRestoreReportRequest, reportedStatusRestored, imageSortRestored));
     }
+    @GetMapping("/fetch")//목록 조회
+    public BaseResponse<List<ReportDto.ReportListResponse>> getReportList() {
+        return new BaseResponse<>(reportService.getDamageReportList());
+    }
+    @PostMapping("/fetch/mark") //선택한 마크 표시된 신고 조회
+    public BaseResponse<ReportDto.ReportMarkResponse> getMarkedReport(@RequestBody ReportDto.ReportMarkRequest reportMarkRequest) {
+        return new BaseResponse<>(reportService.getMarkedReport(reportMarkRequest));
+    }
+    @GetMapping("/fetch/detail")//상세 조회
+    public BaseResponse<ReportDto.ReportResponse> getReport(@RequestParam String reportId) {
 
-    @GetMapping("/{report-id}")
-    public BaseResponse<ReportDto.ReportResponse> getReport(@PathVariable(name = "report-id") String reportId) {
-
-        return new BaseResponse<>(reportService.getReport(reportId));
+        return new BaseResponse<>(reportService.getDetailReport(reportId));
     }
 
     @DeleteMapping("/delete")
     public BaseResponse<Void> deleteReport(@RequestBody ReportDto.DeleteReportRequest deleteReportRequest){
         reportService.deleteReport(deleteReportRequest);
         return new BaseResponse<>();
-    }
-    @GetMapping("/fetch")
-    public BaseResponse<List<ReportDto.ReportListResponse>> getReportList() {
-        return new BaseResponse<>(reportService.getDamageReportList());
     }
 
     @PostMapping("dangerouscnt")

@@ -49,8 +49,8 @@ public class ReportServiceImpl implements ReportService{
         String dirNm = "report/"+reportedStatus + "/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
         System.out.println(dirNm);
         Location location;
-        String gpsX = createReportRequest.getGpsX();
-        String gpsY = createReportRequest.getGpsY();
+        Double gpsX = createReportRequest.getGpsX();
+        Double gpsY = createReportRequest.getGpsY();
         String address = createReportRequest.getAddress();
         if (locationRepository.existsByGpsXAndGpsY(gpsX, gpsY)) {
             throw new AlreadyReportException();
@@ -151,15 +151,50 @@ public class ReportServiceImpl implements ReportService{
     }
 
     @Override
-    public ReportDto.ReportResponse getReport(String reportId){ // 상세
-        Report report = reportRepository.findById(reportId).orElseThrow(()-> new NotFoundReportException());
-        List<String> imageUrls = imageRepository.findAllByReportReportId(reportId).stream()
+    public ReportDto.ReportMarkResponse getMarkedReport(ReportDto.ReportMarkRequest reportMarkRequest){ // 마크 표시된 신고 하나 조회
+        Report report = reportRepository.findById(reportMarkRequest.getReportId()).orElseThrow(()-> new NotFoundReportException());
+        List<String> imageUrls = imageRepository.findAllByReportReportId(reportMarkRequest.getReportId()).stream()
                 .map((image) -> image.getUrl()).toList();
+
+        //위도(y) 경도(x)로 거리계산
+        double distance = distance(reportMarkRequest.getUserGpsY(), reportMarkRequest.getUserGpsX(), report.getLocation().getGpsY(), report.getLocation().getGpsX());
+        System.out.println(distance);
+        return ReportDto.ReportMarkResponse.builder()
+                .report(report)
+                .imageUrls(imageUrls)
+                .distance(distance)
+                .build();
+    }
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+    //lat: 위도, lon: 경도
+        double theta = lon1 - lon2;
+        double dist = Math.sin(degToRad(lat1)) * Math.sin(degToRad(lat2)) + Math.cos(degToRad(lat1)) * Math.cos(degToRad(lat2)) * Math.cos(degToRad(theta));
+
+        dist = Math.acos(dist);
+        dist = radToDeg(dist);
+        dist = dist * 60 * 1.1515 * 1609.344;
+
+        return dist;
+    }
+
+
+    // decimal degrees to radians
+    private static double degToRad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    // radians to decimal degrees
+    private static double radToDeg(double rad) {
+        return (rad * 180 / Math.PI);
+    }
+
+    @Override
+    public ReportDto.ReportResponse getDetailReport(String reportId){ // 상세
+        Report report = reportRepository.findById(reportId).orElseThrow(()-> new NotFoundReportException());
 
         return ReportDto.ReportResponse.builder()
                 .report(report)
                 .location(report.getLocation())
-                .imageUrls(imageUrls)
                 .build();
     }
     @Override
@@ -167,12 +202,7 @@ public class ReportServiceImpl implements ReportService{
         final ReportEnum.ReportedStatus reportedStatus = ReportEnum.ReportedStatus.DAMAGE;
 
         List<ReportDto.ReportListResponse> reportListResponses = reportRepository.findAllByReportedStatus(reportedStatus).stream().map
-                (report -> {
-                    List<String> imageUrls = imageRepository.findAllByReportReportId(report.getReportId())
-                    .stream().map(Image::getUrl).toList();
-                     return new ReportDto.ReportListResponse(report, report.getAccount().getUserId(), imageUrls);
-        }).collect(Collectors.toList());
-
+                (report -> new ReportDto.ReportListResponse(report)).collect(Collectors.toList());
         return reportListResponses;
     }
 
