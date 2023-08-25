@@ -21,34 +21,30 @@ public class CustomHandler {
     }
 
     @ExceptionHandler(AlreadyReportException.class)
-    public ResponseEntity<ResponseDto> AlreadyReportException (
+    public BaseResponse<Void> AlreadyReportException (
             AlreadyReportException e) {
 
-        return ResponseEntity.status(HttpStatus.ALREADY_REPORTED)
-                .body(new ResponseDto("이미 신고된 신고", e.getClass().getName()));
+        return new BaseResponse<>("이미 신고된 신고");
     }
 
     @ExceptionHandler(NotFoundReportException.class)
-    public ResponseEntity<ResponseDto> NotFoundReportException (
+    public BaseResponse<Void> NotFoundReportException (
             NotFoundAccountException e) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ResponseDto("해당 신고 없음", e.getClass().getName()));
+        return new BaseResponse<>("해당 신고 없음");
     }
 
     @ExceptionHandler(NotFoundLocationException.class)
-    public ResponseEntity<ResponseDto> NotFoundLocationException (
+    public BaseResponse<Void> NotFoundLocationException (
             NotFoundAccountException e) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ResponseDto("잘못된 주소", e.getClass().getName()));
+        return new BaseResponse<>("잘못된 주소");
     }
 
     @ExceptionHandler(NotFoundDangerousCntException.class)
-    public ResponseEntity<ResponseDto> NotFoundDangerousCntException (
+    public BaseResponse<Void> NotFoundDangerousCntException (
             NotFoundDangerousCntException e) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ResponseDto("해당 신고에 대한 위험해요 공감 없음", e.getClass().getName()));
+        return new BaseResponse<>("해당 신고에 대한 위험해요 공감 없음");
     }
 }
