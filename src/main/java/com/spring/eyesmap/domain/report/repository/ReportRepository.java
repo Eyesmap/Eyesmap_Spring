@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface ReportRepository extends JpaRepository<Report, String> {
+    List<Report> findAllByReportedStatus(ReportEnum.ReportedStatus reportedStatus);
     List<Report> findAllByGuAndReportedStatus(Integer gu, ReportEnum.ReportedStatus reportedStatus);
-
     List<Report> findByAccount(Account account);
 }

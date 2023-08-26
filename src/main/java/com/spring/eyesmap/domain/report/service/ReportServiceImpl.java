@@ -7,17 +7,18 @@ import com.spring.eyesmap.domain.image.repository.ImageRepository;
 import com.spring.eyesmap.domain.image.service.S3UploaderService;
 import com.spring.eyesmap.domain.report.domain.Location;
 import com.spring.eyesmap.domain.report.domain.Report;
+import com.spring.eyesmap.domain.report.domain.ReportDangerousCnt;
 import com.spring.eyesmap.domain.report.domain.ReportDeletion;
 import com.spring.eyesmap.domain.report.dto.ReportDto;
 import com.spring.eyesmap.domain.report.repository.LocationRepository;
+import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportDeletionRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.enumeration.DistrictNum;
 import com.spring.eyesmap.global.enumeration.ImageSort;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
-import com.spring.eyesmap.global.exception.CustomException;
-import com.spring.eyesmap.global.response.BaseResponse;
+import com.spring.eyesmap.global.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,7 @@ public class ReportServiceImpl implements ReportService{
     private final LocationRepository locationRepository;
     private final ImageRepository imageRepository;
     private final ReportDeletionRepository reportDeletionRepository;
+    private final ReportDangerourCntRepository reportDangerourCntRepository;
 
     private final Integer REPORT_REQUEST_NUM = 3; //
 
@@ -47,21 +49,23 @@ public class ReportServiceImpl implements ReportService{
         String dirNm = "report/"+reportedStatus + "/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
         System.out.println(dirNm);
         Location location;
+        Double gpsX = createReportRequest.getGpsX();
+        Double gpsY = createReportRequest.getGpsY();
         String address = createReportRequest.getAddress();
-        if(reportedStatus == ReportEnum.ReportedStatus.DAMAGE){
-             location = Location.builder() //중복 허용 불가
+        if (locationRepository.existsByGpsXAndGpsY(gpsX, gpsY)) {
+            throw new AlreadyReportException();
+        }
+
+        location = Location.builder() //중복 허용 불가
                     .address(address)
-                    .gpsX(createReportRequest.getGpsX())
-                    .gpsY(createReportRequest.getGpsX())
+                    .gpsX(gpsX)
+                    .gpsY(gpsY)
                     .build();
             locationRepository.save(location);
-        }else{
-            location = locationRepository.findByAddress(address).orElseThrow(() -> new CustomException());
-        }
-        System.out.println(createReportRequest.getAccountId());
+
         Account account = accountRepository.findByUserId(createReportRequest.getAccountId())
         .orElseThrow(
-                () -> new CustomException() //로그인이랑 합치고 변경
+                () -> new NotFoundAccountException()
         );
 
 
@@ -77,27 +81,61 @@ public class ReportServiceImpl implements ReportService{
                         .damagedStatus(createReportRequest.getDamagedStatus())
                 .build();
 
-        reportRepository.save(report);
-        List<String> imgUrls = new ArrayList<>();
-        List<ImageDto.S3UploadResponse> imagesResponse = s3UploaderService.upload(multipartFiles, dirNm);
-        List<Image> uploadedImage = imagesResponse.stream()
-                .map(imageResponse -> {
-                    imgUrls.add(imageResponse.getImgUrl());
-                    return Image.builder()
-                        .url(imageResponse.getImgUrl())
-                            .imgNm(imageResponse.getImgFileNm())
-                        .imageSort(imageSort)
-                        .report(report)
-                        .build();}).collect(Collectors.toList());
-        imageRepository.saveAll(uploadedImage);
-
-        return ReportDto.CreateReportResponse.builder()
-                .location(location)
-                .report(report)
-                .imageUrls(imgUrls)
-                .accountId(account.getUserId())
-                .build();
+        return saveReport(multipartFiles, report, location, account, dirNm, imageSort);
     }
+    @Override
+    public ReportDto.CreateReportResponse createRestoreReport(List<MultipartFile> multipartFiles, ReportDto.CreateRestoreReportRequest createRestoreReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
+        Report report = reportRepository.findById(createRestoreReportRequest.getReportId()).orElseThrow(() -> new NotFoundReportException());
+        String dirNm = "report/" + reportedStatus + "/" + report.getSort() + "/" + report.getDamagedStatus();
+        System.out.println(dirNm);
+
+        Location location = report.getLocation();
+
+        Account account = accountRepository.findByUserId(createRestoreReportRequest.getAccountId())
+                .orElseThrow(
+                        () -> new NotFoundAccountException()
+                );
+        Report restoredReport = Report.builder()
+                .contents(report.getContents())
+                .damagedStatus(report.getDamagedStatus())
+                .reportedStatus(reportedStatus)
+                .location(location)
+                .title(report.getTitle())
+                .sort(report.getSort())
+                .account(account)
+                .gu(getGu(location.getAddress()))
+                .damagedStatus(report.getDamagedStatus())
+                .build();
+
+        return saveReport(multipartFiles, restoredReport, location, account, dirNm, imageSort);
+
+    }
+
+    private ReportDto.CreateReportResponse saveReport(List<MultipartFile> multipartFiles, Report report, Location location,
+                                                     Account account, String dirNm, ImageSort imageSort) throws IOException {
+
+            reportRepository.save(report);
+            List<String> imgUrls = new ArrayList<>();
+            List<ImageDto.S3UploadResponse> imagesResponse = s3UploaderService.upload(multipartFiles, dirNm);
+            List<Image> uploadedImage = imagesResponse.stream()
+                    .map(imageResponse -> {
+                        imgUrls.add(imageResponse.getImgUrl());
+                        return Image.builder()
+                                .url(imageResponse.getImgUrl())
+                                .imgNm(imageResponse.getImgFileNm())
+                                .imageSort(imageSort)
+                                .report(report)
+                                .build();}).collect(Collectors.toList());
+            imageRepository.saveAll(uploadedImage);
+
+            return ReportDto.CreateReportResponse.builder()
+                    .location(location)
+                    .report(report)
+                    .imageUrls(imgUrls)
+                    .accountId(account.getUserId())
+                    .build();
+    }
+
     private Integer getGu(String address){
         String pattern = "서울(?:시|특별시)? ?(\\S+)구\\b";
 
@@ -109,40 +147,69 @@ public class ReportServiceImpl implements ReportService{
             System.out.println(gu);
             return DistrictNum.nameOf(gu).getNum();
         }
-        throw new CustomException();
+        throw new NotFoundLocationException();
     }
 
     @Override
-    public ReportDto.ReportResponse getReport(String reportId){ // 상세
-        Report report = reportRepository.findById(reportId).orElseThrow(()-> new CustomException());
-        List<String> imageUrls = imageRepository.findAllByReportReportId(reportId).stream()
+    public ReportDto.ReportMarkResponse getMarkedReport(ReportDto.ReportMarkRequest reportMarkRequest){ // 마크 표시된 신고 하나 조회
+        Report report = reportRepository.findById(reportMarkRequest.getReportId()).orElseThrow(()-> new NotFoundReportException());
+        List<String> imageUrls = imageRepository.findAllByReportReportId(reportMarkRequest.getReportId()).stream()
                 .map((image) -> image.getUrl()).toList();
+
+        //위도(y) 경도(x)로 거리계산
+        double distance = distance(reportMarkRequest.getUserGpsY(), reportMarkRequest.getUserGpsX(), report.getLocation().getGpsY(), report.getLocation().getGpsX());
+        System.out.println(distance);
+        return ReportDto.ReportMarkResponse.builder()
+                .report(report)
+                .imageUrls(imageUrls)
+                .distance(distance)
+                .build();
+    }
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+    //lat: 위도, lon: 경도
+        double theta = lon1 - lon2;
+        double dist = Math.sin(degToRad(lat1)) * Math.sin(degToRad(lat2)) + Math.cos(degToRad(lat1)) * Math.cos(degToRad(lat2)) * Math.cos(degToRad(theta));
+
+        dist = Math.acos(dist);
+        dist = radToDeg(dist);
+        dist = dist * 60 * 1.1515 * 1609.344;
+
+        return dist;
+    }
+
+
+    // decimal degrees to radians
+    private static double degToRad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    // radians to decimal degrees
+    private static double radToDeg(double rad) {
+        return (rad * 180 / Math.PI);
+    }
+
+    @Override
+    public ReportDto.ReportResponse getDetailReport(String reportId){ // 상세
+        Report report = reportRepository.findById(reportId).orElseThrow(()-> new NotFoundReportException());
 
         return ReportDto.ReportResponse.builder()
                 .report(report)
                 .location(report.getLocation())
-                .imageUrls(imageUrls)
                 .build();
     }
     @Override
-    public List<ReportDto.ReportListResponse> getDamageReportList(ReportDto.ReportListRequest reportListRequest){
-        String address = reportListRequest.getAddress();
+    public List<ReportDto.ReportListResponse> getDamageReportList(){
         final ReportEnum.ReportedStatus reportedStatus = ReportEnum.ReportedStatus.DAMAGE;
 
-        List<ReportDto.ReportListResponse> reportListResponses = reportRepository.findAllByGuAndReportedStatus(getGu(address), reportedStatus).stream().map
-                (report -> {
-                    List<String> imageUrls = imageRepository.findAllByReportReportId(report.getReportId())
-                    .stream().map(Image::getUrl).toList();
-                     return new ReportDto.ReportListResponse(report, report.getAccount().getUserId(), imageUrls);
-        }).collect(Collectors.toList());
-
+        List<ReportDto.ReportListResponse> reportListResponses = reportRepository.findAllByReportedStatus(reportedStatus).stream().map
+                (report -> new ReportDto.ReportListResponse(report)).collect(Collectors.toList());
         return reportListResponses;
     }
 
     @Override
     @Transactional
     public void deleteReport(ReportDto.DeleteReportRequest deleteReportRequest){
-        Report report = reportRepository.findById(deleteReportRequest.getReportId()).orElseThrow(() -> new CustomException());
+        Report report = reportRepository.findById(deleteReportRequest.getReportId()).orElseThrow(() -> new NotFoundReportException());
         //ReportDeletionRepository 조합이 unique해야해
         report.updateDeleteRequestNum();
         String reportId = report.getReportId();
@@ -166,5 +233,26 @@ public class ReportServiceImpl implements ReportService{
             locationRepository.deleteById(report.getLocation().getId());
         }
     }
+    @Override
+    @Transactional
+    public void createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+        if (reportDangerourCntRepository.existsByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())) {
+            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+                    .orElseThrow(()->new NotFoundReportException());
+            ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())
+                    .orElseThrow(() -> new NotFoundDangerousCntException());
+
+            report.updateReportDangerousNum(report.getReportDangerousNum() - 1);
+            reportDangerourCntRepository.delete(reportDangerousCnt);//status를 넣고 목록도 status가 1인 것만 조회하도록 논의
+        }else {
+            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+                    .orElseThrow(() -> new NotFoundReportException());
+            ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, reportDangerousCntRequest.getUserId());
+            reportDangerourCntRepository.save(reportDangerousCnt);
+            report.updateReportDangerousNum(report.getReportDangerousNum() + 1);
+        }
+    }
+
+    //관리자 -> 신고 복구 들어오면 삭제(해당 복구 신고 들어온 거 다 삭제)
 
 }
