@@ -47,4 +47,11 @@ public class CustomHandler {
 
         return new BaseResponse<>("해당 신고에 대한 위험해요 공감 없음");
     }
+    @ExceptionHandler(NotFoundEnumException.class)
+    public BaseResponse<Void> notFoundEnumException (
+            NotFoundEnumException e) {
+
+        return new BaseResponse<>("해당 enum은 존재하지 않음");
+
+    }
 }

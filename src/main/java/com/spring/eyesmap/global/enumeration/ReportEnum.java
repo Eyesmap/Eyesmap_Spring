@@ -1,5 +1,9 @@
 package com.spring.eyesmap.global.enumeration;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import java.util.stream.Stream;
+
 public class ReportEnum {
     /**
      * DAMAGE: 파손 신고
@@ -17,5 +21,13 @@ public class ReportEnum {
     }
     public enum DeleteReason{
         FALSE_REPORT, DUPLICATE
+    }
+
+    @JsonCreator
+    public static ReportEnum.Sort parsing(String inputValue) {
+        return Stream.of(ReportEnum.Sort.values())
+                .filter(sort -> sort.toString().equals(inputValue.toUpperCase()))
+                .findFirst()
+                .orElse(null);
     }
 }
