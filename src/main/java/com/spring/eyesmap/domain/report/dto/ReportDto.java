@@ -51,7 +51,7 @@ public class ReportDto {
             this.damagedStatus = report.getDamagedStatus();
             this.title = report.getTitle();
             this.sort = report.getSort();
-            this.dangerousCnt = report.getDangerousCnt();
+            this.dangerousCnt = report.getReportDangerousNum();
             this.distance = distance;
             this.imageUrls = imageUrls;
         }
