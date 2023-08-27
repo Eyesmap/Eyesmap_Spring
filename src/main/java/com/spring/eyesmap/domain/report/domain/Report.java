@@ -28,10 +28,6 @@ public class Report {
     @Column(name = "report_id", columnDefinition = "VARCHAR(255)")
     private String reportId;
 
-    @Column(name = "dangerous_count")
-    @ColumnDefault("0")
-    private Integer dangerousCnt;
-
     @Enumerated(EnumType.STRING)
     private ReportEnum.Sort sort;
     @Enumerated(EnumType.STRING)
