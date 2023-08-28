@@ -17,8 +17,14 @@ import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -41,6 +47,9 @@ public class AccountService {
 
     @Value("${cloud.aws.region.static}")
     private String region;
+
+    @Value("${kakao.admin-key}")
+    private String adminKey;
 
     @Transactional
     public AccountDto.ReportListResponseDto fetchReportList() {
@@ -143,5 +152,25 @@ public class AccountService {
                 ".amazonaws.com/" +
                 imageBasicUrl +
                 basicImageName, imageBasicUrl + basicImageName);
+    }
+
+    public void fetchAllAccount() {
+        // 1. header
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", "KakaoAK "+ adminKey);
+        httpHeaders.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // 2. put header
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(httpHeaders);
+
+        // request http
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/ids",
+                HttpMethod.GET,
+                httpEntity,
+                String.class
+        );
+        log.info("all account info= " + response);
     }
 }

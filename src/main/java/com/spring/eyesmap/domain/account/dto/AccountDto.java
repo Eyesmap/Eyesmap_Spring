@@ -50,12 +50,11 @@ public class AccountDto {
     @Data
     @Getter
     public static class RankingResponseDto {
-        List<RankingList> rankingList;
+        private List<RankingList> rankingList;
         @Builder
         public RankingResponseDto(List<RankingList> rankingList){
             this.rankingList = rankingList;
         }
     }
-
 
 }
