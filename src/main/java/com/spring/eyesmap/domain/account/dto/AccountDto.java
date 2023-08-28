@@ -50,11 +50,33 @@ public class AccountDto {
     @Data
     @Getter
     public static class RankingResponseDto {
-        private List<RankingList> rankingList;
+        private List<RankingListTop3> rankingListTop3;
+        private List<OtherRankingList> otherRankingList;
         @Builder
-        public RankingResponseDto(List<RankingList> rankingList){
-            this.rankingList = rankingList;
+        public RankingResponseDto(List<RankingListTop3> rankingListTop3, List<OtherRankingList> otherRankingList){
+            this.rankingListTop3 = rankingListTop3;
+            this.otherRankingList = otherRankingList;
         }
     }
 
+    @Data
+    @AllArgsConstructor
+    public static class RankingListTop3 {
+        private Integer rank;
+        private Long userId;
+        private String nickname;
+        private String profileImageUrl;
+        private Long reportCnt;
+        private String medalImage;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class OtherRankingList {
+        private Integer rank;
+        private Long userId;
+        private String nickname;
+        private String profileImageUrl;
+        private Long reportCnt;
+    }
 }

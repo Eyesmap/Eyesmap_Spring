@@ -21,6 +21,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
@@ -101,10 +102,40 @@ public class AccountService {
 
     @Transactional
     public AccountDto.RankingResponseDto fetchRankingList() {
-        List<RankingList> rankingList = accountRepository.findTop10Ranking();
+        Integer rank = 1;
+        Long previousValue = null;
 
+        List<RankingList> rankingList = accountRepository.findTop10Ranking();
+        List<AccountDto.RankingListTop3> rankingListTop3 = new ArrayList<>();
+        List<AccountDto.OtherRankingList> otherRankingList = new ArrayList<>();
+        for (RankingList r:
+             rankingList) {
+
+            if (rank <= 3){
+                String medalImageUrl = bucket +
+                        ".s3." +
+                        region +
+                        ".amazonaws.com/";
+                if(rank == 1){
+                    medalImageUrl += null;
+                }
+                else if(rank == 2) {
+                    medalImageUrl += null;
+                }
+                else{
+                    medalImageUrl += null;
+                }
+                rankingListTop3.add(new AccountDto.RankingListTop3(rank, r.getUserId(), r.getNickname(), r.getProfileImageUrl(), r.getReportCnt(), medalImageUrl));
+            }
+            else{
+                otherRankingList.add(new AccountDto.OtherRankingList(rank, r.getUserId(), r.getNickname(), r.getProfileImageUrl(), r.getReportCnt()));
+            }
+
+            rank+=1;
+        }
         return AccountDto.RankingResponseDto.builder()
-                .rankingList(rankingList)
+                .rankingListTop3(rankingListTop3)
+                .otherRankingList(otherRankingList)
                 .build();
     }
 
