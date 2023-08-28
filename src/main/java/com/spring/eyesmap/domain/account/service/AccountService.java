@@ -41,6 +41,7 @@ public class AccountService {
     private final ReportDangerourCntRepository reportDangerourCntRepository;
     private final S3UploaderService s3UploaderService;
     private final String imageBasicUrl = "account/profile/image/";
+    private final String medalImageBasicUrl = "ranking/medal/";
     private final String basicImageName = "basicimage.jpeg";
 
     @Value("${cloud.aws.s3.bucket}")
@@ -115,15 +116,16 @@ public class AccountService {
                 String medalImageUrl = bucket +
                         ".s3." +
                         region +
-                        ".amazonaws.com/";
+                        ".amazonaws.com/" +
+                        medalImageBasicUrl;
                 if(rank == 1){
-                    medalImageUrl += null;
+                    medalImageUrl += "gold.png";
                 }
                 else if(rank == 2) {
-                    medalImageUrl += null;
+                    medalImageUrl += "silver.png";
                 }
                 else{
-                    medalImageUrl += null;
+                    medalImageUrl += "bronze.png";
                 }
                 rankingListTop3.add(new AccountDto.RankingListTop3(rank, r.getUserId(), r.getNickname(), r.getProfileImageUrl(), r.getReportCnt(), medalImageUrl));
             }
