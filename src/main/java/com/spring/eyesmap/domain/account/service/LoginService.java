@@ -64,7 +64,7 @@ public class LoginService {
     private Map<String, Object> getUserAttributesByToken(Long providerId){
         return WebClient.create()
                 .get()
-                .uri("https://kapi.kakao.com/v2/user/me?target_id_type=user_id?target_id=" + providerId)
+                .uri("https://kapi.kakao.com/v2/user/me?target_id_type=user_id&target_id=" + providerId)
                 .header("Authorization", "KakaoAK "+ adminKey)
                 .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
                 .retrieve()
@@ -79,6 +79,11 @@ public class LoginService {
 //            throw new IllegalArgumentException("잘못된 접근입니다.");
 //        }
         Map<String, Object> userAttributesByToken = getUserAttributesByToken(providerId);
+        log.info("entry value: ");
+        for (Map.Entry<String, Object> entrySet:
+             userAttributesByToken.entrySet()) {
+            log.info(entrySet.getKey() + ": " + entrySet.getValue());
+        }
         KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(userAttributesByToken);
         Long kakao_id = kakaoUserInfo.getId();
         // String name = kakaoUserInfo.getName();
