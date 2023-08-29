@@ -187,6 +187,23 @@ public class AccountService {
                 basicImageName, imageBasicUrl + basicImageName);
     }
 
+    @Transactional
+    public AccountDto.FetchAccountResponseDto fetchAccount() {
+        // get user
+        Long userId = SecurityUtil.getCurrentAccountId();
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundAccountException());
+        log.info("accountId= " + account.getUserId());
+
+        AccountDto.FetchAccountResponseDto fetchAccountResponseDto = new AccountDto.FetchAccountResponseDto(
+                account.getNickname(),
+                account.getProfileImageUrl(),
+                account.getImageName());
+
+        return fetchAccountResponseDto;
+    }
+
+    @Transactional
     public void fetchAllAccount() {
         // 1. header
         HttpHeaders httpHeaders = new HttpHeaders();

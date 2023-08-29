@@ -33,6 +33,13 @@ public class AccountController {
         return new BaseResponse<>(dangerousCntListResponseDto);
     }
 
+    // 사용자 정보 조회
+    @GetMapping("/api/account/info")
+    public BaseResponse<AccountDto.FetchAccountResponseDto> fetchAccount(){
+        AccountDto.FetchAccountResponseDto fetchAccountResponseDto = accountService.fetchAccount();
+        return new BaseResponse<>(fetchAccountResponseDto);
+    }
+
     // 명예의 전당 랭킹 조회
     @GetMapping("/api/account/ranking/list")
     public BaseResponse<AccountDto.RankingResponseDto> fetchRankingList(){

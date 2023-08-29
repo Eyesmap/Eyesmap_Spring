@@ -1,5 +1,9 @@
 package com.spring.eyesmap.domain.account.dto;
 
+import com.spring.eyesmap.global.enumeration.Role;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.util.List;
@@ -78,5 +82,13 @@ public class AccountDto {
         private String nickname;
         private String profileImageUrl;
         private Long reportCnt;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class FetchAccountResponseDto {
+        private String nickname;
+        private String profileImageUrl;
+        private String imageName;
     }
 }
