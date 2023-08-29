@@ -5,10 +5,7 @@ import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -70,20 +67,18 @@ public class ReportDto {
         private ReportEnum.DamagedStatus damagedStatus;
         @Enumerated(EnumType.STRING)
         private ReportEnum.Sort sort;
-
-        private Long accountId; // 이후 토큰으로 변경
     }
     @Getter
-    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CreateRestoreReportRequest{
         private String reportId;
-        private Long accountId; // 이후 토큰으로 변경
     }
     @Getter
-    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ReportDangerousCntRequest{
         private String reportId;
-        private Long userId; // 이후 토큰으로 변경
     }
 
     @Getter
@@ -131,7 +126,6 @@ public class ReportDto {
     @Getter
     @RequiredArgsConstructor
     public static class DeleteReportRequest{
-        private Long userId;
         private String reportId;
         @Enumerated(EnumType.STRING)
         private ReportEnum.DeleteReason deleteReason;

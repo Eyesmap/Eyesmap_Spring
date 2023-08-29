@@ -19,6 +19,7 @@ import com.spring.eyesmap.global.enumeration.DistrictNum;
 import com.spring.eyesmap.global.enumeration.ImageSort;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
 import com.spring.eyesmap.global.exception.*;
+import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +64,8 @@ public class ReportServiceImpl implements ReportService{
                     .build();
             locationRepository.save(location);
 
-        Account account = accountRepository.findByUserId(createReportRequest.getAccountId())
+        Long userId = SecurityUtil.getCurrentAccountId();
+        Account account = accountRepository.findByUserId(userId)
         .orElseThrow(
                 () -> new NotFoundAccountException()
         );
@@ -90,8 +92,8 @@ public class ReportServiceImpl implements ReportService{
         System.out.println(dirNm);
 
         Location location = report.getLocation();
-
-        Account account = accountRepository.findByUserId(createRestoreReportRequest.getAccountId())
+        Long userId = SecurityUtil.getCurrentAccountId();
+        Account account = accountRepository.findByUserId(userId)
                 .orElseThrow(
                         () -> new NotFoundAccountException()
                 );
@@ -177,13 +179,10 @@ public class ReportServiceImpl implements ReportService{
         return dist;
     }
 
-
-    // decimal degrees to radians
     private static double degToRad(double deg) {
         return (deg * Math.PI / 180.0);
     }
 
-    // radians to decimal degrees
     private static double radToDeg(double rad) {
         return (rad * 180 / Math.PI);
     }
@@ -209,11 +208,19 @@ public class ReportServiceImpl implements ReportService{
     @Override
     @Transactional
     public void deleteReport(ReportDto.DeleteReportRequest deleteReportRequest){
+
         Report report = reportRepository.findById(deleteReportRequest.getReportId()).orElseThrow(() -> new NotFoundReportException());
+        Long userId = SecurityUtil.getCurrentAccountId();
+        if(!accountRepository.existsById(userId)){
+            throw new NotFoundAccountException();
+        }
+        if(reportDeletionRepository.existsByReportReportIdAndUserId(report.getReportId(), userId)){
+            throw new AlreadyDeletionReportException();
+        }
         //ReportDeletionRepository 조합이 unique해야해
         report.updateDeleteRequestNum();
         String reportId = report.getReportId();
-        reportDeletionRepository.save(new ReportDeletion(report, deleteReportRequest.getUserId()));
+        reportDeletionRepository.save(new ReportDeletion(report, userId));
 
         if(report.getDeleteRequestNum() == REPORT_REQUEST_NUM){
             imageRepository.findAllByReportReportId(reportId).stream()
@@ -236,18 +243,23 @@ public class ReportServiceImpl implements ReportService{
     @Override
     @Transactional
     public void createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
-        if (reportDangerourCntRepository.existsByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())) {
+        Long userId = SecurityUtil.getCurrentAccountId();
+
+        if(!accountRepository.existsById(userId)){
+            throw new NotFoundAccountException();
+        }
+        if (reportDangerourCntRepository.existsByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), userId)) {
             Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
                     .orElseThrow(()->new NotFoundReportException());
-            ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), reportDangerousCntRequest.getUserId())
+            ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(),userId)
                     .orElseThrow(() -> new NotFoundDangerousCntException());
 
             report.updateReportDangerousNum(report.getReportDangerousNum() - 1);
-            reportDangerourCntRepository.delete(reportDangerousCnt);//status를 넣고 목록도 status가 1인 것만 조회하도록 논의
+            reportDangerourCntRepository.delete(reportDangerousCnt);
         }else {
             Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
                     .orElseThrow(() -> new NotFoundReportException());
-            ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, reportDangerousCntRequest.getUserId());
+            ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, userId);
             reportDangerourCntRepository.save(reportDangerousCnt);
             report.updateReportDangerousNum(report.getReportDangerousNum() + 1);
         }

@@ -18,14 +18,14 @@ import java.util.List;
 public class ReportController {
     private final ReportService reportService;
 
-    @PostMapping("create/damage")
+    @PostMapping("/create/damage")
     public BaseResponse<ReportDto.CreateReportResponse> createReportDamaged(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateReportRequest createReportRequest) throws IOException {
         final ReportEnum.ReportedStatus reportedStatusDamaged = ReportEnum.ReportedStatus.DAMAGE;
         final ImageSort imageSortDamaged = ImageSort.DAMAGED;
         return new BaseResponse<>(reportService.createReport(images, createReportRequest, reportedStatusDamaged, imageSortDamaged));
     }
 
-    @PostMapping("create/restoration")
+    @PostMapping("/create/restoration")
     public BaseResponse<ReportDto.CreateReportResponse> createReportRestored(@RequestPart("images") List<MultipartFile> images, @RequestPart ReportDto.CreateRestoreReportRequest createRestoreReportRequest) throws IOException {
         ReportEnum.ReportedStatus reportedStatusRestored = ReportEnum.ReportedStatus.RESTORE;
         final ImageSort imageSortRestored = ImageSort.RESTORED;
@@ -52,7 +52,7 @@ public class ReportController {
         return new BaseResponse<>();
     }
 
-    @PostMapping("dangerouscnt")
+    @PostMapping("/dangerouscnt")
     public BaseResponse<Void> createOrCancelReportDangeroutCnt(@RequestBody ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
         reportService.createOrCancelReportDangeroutCnt(reportDangerousCntRequest);
         return new BaseResponse<>();
