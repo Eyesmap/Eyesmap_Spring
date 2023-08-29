@@ -17,8 +17,15 @@ import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -34,6 +41,7 @@ public class AccountService {
     private final ReportDangerourCntRepository reportDangerourCntRepository;
     private final S3UploaderService s3UploaderService;
     private final String imageBasicUrl = "account/profile/image/";
+    private final String medalImageBasicUrl = "ranking/medal/";
     private final String basicImageName = "basicimage.jpeg";
 
     @Value("${cloud.aws.s3.bucket}")
@@ -41,6 +49,9 @@ public class AccountService {
 
     @Value("${cloud.aws.region.static}")
     private String region;
+
+    @Value("${kakao.admin-key}")
+    private String adminKey;
 
     @Transactional
     public AccountDto.ReportListResponseDto fetchReportList() {
@@ -92,10 +103,41 @@ public class AccountService {
 
     @Transactional
     public AccountDto.RankingResponseDto fetchRankingList() {
-        List<RankingList> rankingList = accountRepository.findTop10Ranking();
+        Integer rank = 1;
+        Long previousValue = null;
 
+        List<RankingList> rankingList = accountRepository.findTop10Ranking();
+        List<AccountDto.RankingListTop3> rankingListTop3 = new ArrayList<>();
+        List<AccountDto.OtherRankingList> otherRankingList = new ArrayList<>();
+        for (RankingList r:
+             rankingList) {
+
+            if (rank <= 3){
+                String medalImageUrl = bucket +
+                        ".s3." +
+                        region +
+                        ".amazonaws.com/" +
+                        medalImageBasicUrl;
+                if(rank == 1){
+                    medalImageUrl += "gold.png";
+                }
+                else if(rank == 2) {
+                    medalImageUrl += "silver.png";
+                }
+                else{
+                    medalImageUrl += "bronze.png";
+                }
+                rankingListTop3.add(new AccountDto.RankingListTop3(rank, r.getUserId(), r.getNickname(), r.getProfileImageUrl(), r.getReportCnt(), medalImageUrl));
+            }
+            else{
+                otherRankingList.add(new AccountDto.OtherRankingList(rank, r.getUserId(), r.getNickname(), r.getProfileImageUrl(), r.getReportCnt()));
+            }
+
+            rank+=1;
+        }
         return AccountDto.RankingResponseDto.builder()
-                .rankingList(rankingList)
+                .rankingListTop3(rankingListTop3)
+                .otherRankingList(otherRankingList)
                 .build();
     }
 
@@ -143,5 +185,42 @@ public class AccountService {
                 ".amazonaws.com/" +
                 imageBasicUrl +
                 basicImageName, imageBasicUrl + basicImageName);
+    }
+
+    @Transactional
+    public AccountDto.FetchAccountResponseDto fetchAccount() {
+        // get user
+        Long userId = SecurityUtil.getCurrentAccountId();
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundAccountException());
+        log.info("accountId= " + account.getUserId());
+
+        AccountDto.FetchAccountResponseDto fetchAccountResponseDto = new AccountDto.FetchAccountResponseDto(
+                account.getNickname(),
+                account.getProfileImageUrl(),
+                account.getImageName());
+
+        return fetchAccountResponseDto;
+    }
+
+    @Transactional
+    public void fetchAllAccount() {
+        // 1. header
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", "KakaoAK "+ adminKey);
+        httpHeaders.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // 2. put header
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(httpHeaders);
+
+        // request http
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/ids",
+                HttpMethod.GET,
+                httpEntity,
+                String.class
+        );
+        log.info("all account info= " + response);
     }
 }

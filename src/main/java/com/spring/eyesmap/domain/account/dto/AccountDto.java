@@ -1,5 +1,9 @@
 package com.spring.eyesmap.domain.account.dto;
 
+import com.spring.eyesmap.global.enumeration.Role;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.util.List;
@@ -50,12 +54,41 @@ public class AccountDto {
     @Data
     @Getter
     public static class RankingResponseDto {
-        List<RankingList> rankingList;
+        private List<RankingListTop3> rankingListTop3;
+        private List<OtherRankingList> otherRankingList;
         @Builder
-        public RankingResponseDto(List<RankingList> rankingList){
-            this.rankingList = rankingList;
+        public RankingResponseDto(List<RankingListTop3> rankingListTop3, List<OtherRankingList> otherRankingList){
+            this.rankingListTop3 = rankingListTop3;
+            this.otherRankingList = otherRankingList;
         }
     }
 
+    @Data
+    @AllArgsConstructor
+    public static class RankingListTop3 {
+        private Integer rank;
+        private Long userId;
+        private String nickname;
+        private String profileImageUrl;
+        private Long reportCnt;
+        private String medalImage;
+    }
 
+    @Data
+    @AllArgsConstructor
+    public static class OtherRankingList {
+        private Integer rank;
+        private Long userId;
+        private String nickname;
+        private String profileImageUrl;
+        private Long reportCnt;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class FetchAccountResponseDto {
+        private String nickname;
+        private String profileImageUrl;
+        private String imageName;
+    }
 }
