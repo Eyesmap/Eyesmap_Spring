@@ -60,4 +60,11 @@ public class AccountController {
         accountService.initProfileImage();
         return new BaseResponse<>();
     }
+
+    // 사용자 모든 정보 가져오기
+    @GetMapping("/api/account/all")
+    public BaseResponse<Void> fetchAllAccount() {
+        accountService.fetchAllAccount();
+        return new BaseResponse<>();
+    }
 }
