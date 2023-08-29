@@ -26,8 +26,12 @@ public class SecurityConfig {
                 .csrf().disable()
                 .formLogin().disable()
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/voice/**").hasRole("ADMIN")
-                        .requestMatchers("/api/report/**").authenticated()
+                        .requestMatchers("/api/account/**").authenticated()
+                        .requestMatchers("/api/logout").authenticated()
+                        .requestMatchers("/logout").authenticated()
+                        .requestMatchers("/api/report/create/**").authenticated()
+                        .requestMatchers("/api/report/delete").authenticated()
+                        .requestMatchers("/api/report/dangerouscnt").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .build();
