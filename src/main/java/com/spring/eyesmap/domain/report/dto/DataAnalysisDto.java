@@ -1,5 +1,6 @@
 package com.spring.eyesmap.domain.report.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spring.eyesmap.domain.report.domain.Report;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,11 +20,16 @@ public class DataAnalysisDto {
         private Integer rank;
         private Integer guNum;
         private Long reportCount;
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private String medal;
 
         public DangerousLocationResponse(Integer rank, Integer gu, Long reportCount) {
             this.rank = rank;
             this.guNum = gu;
             this.reportCount = reportCount;
+        }
+        public void setMedal(String medal){
+            this.medal = medal;
         }
     }
 
@@ -40,6 +46,8 @@ public class DataAnalysisDto {
         private Integer count;
         private String address;
         private String title;
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private String medal;
 
         @Builder
         public DangerousReportPerGuResponse(Report report, Integer rank) {
@@ -48,6 +56,9 @@ public class DataAnalysisDto {
             this.count = report.getReportDangerousNum();
             this.address = report.getLocation().getAddress();
             this.title = report.getTitle();
+        }
+        public void setMedal( String medal){
+            this.medal = medal;
         }
     }
 }
