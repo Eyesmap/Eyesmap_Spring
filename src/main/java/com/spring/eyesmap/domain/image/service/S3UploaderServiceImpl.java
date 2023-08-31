@@ -67,5 +67,9 @@ public class S3UploaderServiceImpl implements S3UploaderService{
             throw new IOException("Error deleting file from S3", e);
         }
     }
+    @Override
+    public String getS3(String fileName) {
+        return amazonS3Client.getUrl(bucket, fileName).toString();
+    }
 
 }
