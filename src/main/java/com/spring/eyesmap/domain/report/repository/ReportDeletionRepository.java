@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReportDeletionRepository extends JpaRepository<ReportDeletion, String> {
     void deleteAllByReportReportId(String reportId);
+    boolean existsByReportReportIdAndUserId(String reportId, Long userId);
 }

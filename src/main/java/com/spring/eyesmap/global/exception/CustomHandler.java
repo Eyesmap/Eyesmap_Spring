@@ -26,6 +26,12 @@ public class CustomHandler {
 
         return new BaseResponse<>("이미 신고된 신고");
     }
+    @ExceptionHandler(AlreadyDeletionReportException.class)
+    public BaseResponse<Void> AlreadyDeletionReportException (
+            AlreadyDeletionReportException e) {
+
+        return new BaseResponse<>("이미 신고된 삭제 신고");
+    }
 
     @ExceptionHandler(NotFoundReportException.class)
     public BaseResponse<Void> NotFoundReportException (
