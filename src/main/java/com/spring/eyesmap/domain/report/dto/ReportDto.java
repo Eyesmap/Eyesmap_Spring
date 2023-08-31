@@ -114,12 +114,10 @@ public class ReportDto {
     @Getter
     public static class ReportResponse{
         private String address;
-        private String contents;
         private LocalDateTime reportDate;
         @Builder
         public ReportResponse(Location location, Report report){
             this.address = location.getAddress();
-            this.contents = report.getContents();
             this.reportDate = report.getReportDate();
         }
     }
