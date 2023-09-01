@@ -16,4 +16,13 @@ public class SecurityUtil {
 
         return Long.parseLong(authentication.getName());
     }
+    public static Long getCurrentAccountIdOrNotNull() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication == null || authentication.getName().contentEquals("anonymousUser")) {
+            return null;
+        }
+        System.out.println(authentication.getName());
+        return Long.parseLong(authentication.getName());
+    }
 }

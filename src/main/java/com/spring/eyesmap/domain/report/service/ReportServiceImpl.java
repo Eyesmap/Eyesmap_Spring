@@ -191,9 +191,14 @@ public class ReportServiceImpl implements ReportService{
     public ReportDto.ReportResponse getDetailReport(String reportId){ // 상세
         Report report = reportRepository.findById(reportId).orElseThrow(()-> new NotFoundReportException());
 
+        Long userId = SecurityUtil.getCurrentAccountIdOrNotNull();
+        boolean isDangerBtnClicked = userId!=null && reportDangerourCntRepository.existsByReportReportIdAndUserId(report.getReportId(), userId)
+                ?true:false;
+
         return ReportDto.ReportResponse.builder()
                 .report(report)
                 .location(report.getLocation())
+                .isDangerBtnClicked(isDangerBtnClicked)
                 .build();
     }
     @Override
