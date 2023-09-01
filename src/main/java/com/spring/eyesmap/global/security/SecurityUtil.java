@@ -22,7 +22,7 @@ public class SecurityUtil {
         if(authentication == null || authentication.getName().contentEquals("anonymousUser")) {
             return null;
         }
-        System.out.println(authentication.getName());
+
         return Long.parseLong(authentication.getName());
     }
 }
