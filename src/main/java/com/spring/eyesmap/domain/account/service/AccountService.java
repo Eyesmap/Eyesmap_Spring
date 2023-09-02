@@ -8,10 +8,13 @@ import com.spring.eyesmap.domain.image.domain.Image;
 import com.spring.eyesmap.domain.image.dto.ImageDto;
 import com.spring.eyesmap.domain.image.repository.ImageRepository;
 import com.spring.eyesmap.domain.image.service.S3UploaderService;
+import com.spring.eyesmap.domain.report.domain.Location;
 import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.domain.report.domain.ReportDangerousCnt;
+import com.spring.eyesmap.domain.report.repository.LocationRepository;
 import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
+import com.spring.eyesmap.global.enumeration.ReportEnum;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.exception.NotFoundDangerousCntException;
 import com.spring.eyesmap.global.exception.NotFoundReportException;
@@ -31,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -54,7 +58,16 @@ public class AccountService {
 
     @Value("${kakao.admin-key}")
     private String adminKey;
-
+//    private String reportId; // report
+//    private List<String> imageName; // image
+//    private Double gpsX; // location
+//    private Double gpsY; // location
+//    private ReportEnum.Sort sort; // report
+//    private ReportEnum.DamagedStatus damagedStatus; // report
+//    private Integer dangerousCnt; // report
+//    private String address; // location
+//    private LocalDateTime reportDate; // report
+//    private boolean dangerBtnClicked;
     @Transactional
     public AccountDto.ReportListResponseDto fetchReportList() {
         // get user
@@ -73,8 +86,20 @@ public class AccountService {
         for (Report report:
              reportList) {
             List<Image> imageList = imageRepository.findByReport(report);
+            List<String> imageUrlList = new ArrayList<>();
+            for (Image image:
+                 imageList) {
+                imageUrlList.add(image.getUrl());
+            }
+            boolean isDangerBtnClicked = userId!=null &&
+                    reportDangerourCntRepository.existsByReportReportIdAndUserId(report.getReportId(), userId)
+                    ?true:false;
             log.info("imageListId= "+ imageList.get(0).getId());
-            responseReportLists.add(new AccountDto.MyPageList(report.getReportId(), imageList.get(0).getUrl()));
+            responseReportLists.add(new AccountDto.MyPageList(report.getReportId(), imageUrlList,
+                    report.getLocation().getGpsX(), report.getLocation().getGpsY(),
+                    report.getSort(), report.getDamagedStatus(),
+                    report.getReportDangerousNum(), report.getLocation().getAddress(),
+                    report.getReportDate(), isDangerBtnClicked));
         }
 
         return AccountDto.ReportListResponseDto.builder()
@@ -98,11 +123,23 @@ public class AccountService {
         log.info("reportListId= "+ reportList.get(0).getReport().getReportId());
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
-        for (ReportDangerousCnt report:
+        for (ReportDangerousCnt dangerousCnt:
                 reportList) {
-            List<Image> imageList = imageRepository.findByReport(report.getReport());
+            List<Image> imageList = imageRepository.findByReport(dangerousCnt.getReport());
+            List<String> imageUrlList = new ArrayList<>();
+            for (Image image:
+                    imageList) {
+                imageUrlList.add(image.getUrl());
+            }
+            boolean isDangerBtnClicked = userId!=null &&
+                    reportDangerourCntRepository.existsByReportReportIdAndUserId(dangerousCnt.getReport().getReportId(), userId)
+                    ?true:false;
             log.info("imageListId= "+ imageList.get(0).getId());
-            responseReportLists.add(new AccountDto.MyPageList(report.getReport().getReportId(), imageList.get(0).getUrl()));
+            responseReportLists.add(new AccountDto.MyPageList(dangerousCnt.getReport().getReportId(), imageUrlList,
+                    dangerousCnt.getReport().getLocation().getGpsX(), dangerousCnt.getReport().getLocation().getGpsY(),
+                    dangerousCnt.getReport().getSort(), dangerousCnt.getReport().getDamagedStatus(),
+                    dangerousCnt.getReport().getReportDangerousNum(), dangerousCnt.getReport().getLocation().getAddress(),
+                    dangerousCnt.getReport().getReportDate(), isDangerBtnClicked));
         }
         return AccountDto.DangerousCntListResponseDto.builder()
                 .reportList(responseReportLists)

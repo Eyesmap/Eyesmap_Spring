@@ -1,10 +1,10 @@
 package com.spring.eyesmap.global.exception;
 
 import com.spring.eyesmap.global.response.BaseResponse;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class CustomHandler {
     @ExceptionHandler(LoginFailedException.class)
     public BaseResponse<Void> loginFailedException (
@@ -33,16 +33,16 @@ public class CustomHandler {
         return new BaseResponse<>("이미 신고된 삭제 신고");
     }
 
-    @ExceptionHandler(NotFoundReportException.class)
-    public BaseResponse<Void> NotFoundReportException (
-            NotFoundAccountException e) {
+    @ExceptionHandler({NotFoundReportException.class})
+    public BaseResponse<String> NotFoundReportException (
+            NotFoundReportException e) {
 
         return new BaseResponse<>("해당 신고 없음");
     }
 
     @ExceptionHandler(NotFoundLocationException.class)
     public BaseResponse<Void> NotFoundLocationException (
-            NotFoundAccountException e) {
+            NotFoundLocationException e) {
 
         return new BaseResponse<>("잘못된 주소");
     }
