@@ -13,6 +13,8 @@ import com.spring.eyesmap.domain.report.domain.ReportDangerousCnt;
 import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
+import com.spring.eyesmap.global.exception.NotFoundDangerousCntException;
+import com.spring.eyesmap.global.exception.NotFoundReportException;
 import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +64,9 @@ public class AccountService {
         log.info("accountId= "+ account.getUserId());
         // get report (writer)
         List<Report> reportList = reportRepository.findByAccount(account);
+        if (reportList.isEmpty()){
+            throw new NotFoundReportException();
+        }
         log.info("reportListId= "+ reportList.get(0).getReportId());
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
@@ -87,6 +92,9 @@ public class AccountService {
         }
         // get report (thumps up)
         List<ReportDangerousCnt> reportList = reportDangerourCntRepository.findByUserId(userId);
+        if (reportList.isEmpty()){
+            throw new NotFoundDangerousCntException();
+        }
         log.info("reportListId= "+ reportList.get(0).getReport().getReportId());
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
@@ -113,7 +121,7 @@ public class AccountService {
              rankingList) {
 
             if (rank <= 3){
-                String medalImageUrl = bucket +
+                String medalImageUrl = "https://" +bucket +
                         ".s3." +
                         region +
                         ".amazonaws.com/" +
@@ -179,7 +187,7 @@ public class AccountService {
         // delete old image
         s3UploaderService.deleteFile(account.getImageName());
         // update basic Image
-        account.updateImage(bucket +
+        account.updateImage("https://" + bucket +
                 ".s3." +
                 region +
                 ".amazonaws.com/" +
