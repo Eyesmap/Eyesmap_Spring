@@ -6,28 +6,28 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class CustomHandler {
-    @ExceptionHandler(LoginFailedException.class)
-    public BaseResponse<Void> loginFailedException (
+    @ExceptionHandler({LoginFailedException.class})
+    public BaseResponse<String> loginFailedException (
             LoginFailedException e) {
 
         return new BaseResponse<>("로그인 실패");
     }
 
-    @ExceptionHandler(NotFoundAccountException.class)
-    public BaseResponse<Void> notFoundAccountException (
+    @ExceptionHandler({NotFoundAccountException.class})
+    public BaseResponse<String> notFoundAccountException (
             NotFoundAccountException e) {
 
         return new BaseResponse<>("계정을 찾을 수 없음");
     }
 
-    @ExceptionHandler(AlreadyReportException.class)
-    public BaseResponse<Void> AlreadyReportException (
+    @ExceptionHandler({AlreadyReportException.class})
+    public BaseResponse<String> AlreadyReportException (
             AlreadyReportException e) {
 
         return new BaseResponse<>("이미 신고된 신고");
     }
-    @ExceptionHandler(AlreadyDeletionReportException.class)
-    public BaseResponse<Void> AlreadyDeletionReportException (
+    @ExceptionHandler({AlreadyDeletionReportException.class})
+    public BaseResponse<String> AlreadyDeletionReportException (
             AlreadyDeletionReportException e) {
 
         return new BaseResponse<>("이미 신고된 삭제 신고");
@@ -40,21 +40,21 @@ public class CustomHandler {
         return new BaseResponse<>("해당 신고 없음");
     }
 
-    @ExceptionHandler(NotFoundLocationException.class)
-    public BaseResponse<Void> NotFoundLocationException (
+    @ExceptionHandler({NotFoundLocationException.class})
+    public BaseResponse<String> NotFoundLocationException (
             NotFoundLocationException e) {
 
         return new BaseResponse<>("잘못된 주소");
     }
 
-    @ExceptionHandler(NotFoundDangerousCntException.class)
-    public BaseResponse<Void> NotFoundDangerousCntException (
+    @ExceptionHandler({NotFoundDangerousCntException.class})
+    public BaseResponse<String> NotFoundDangerousCntException (
             NotFoundDangerousCntException e) {
 
         return new BaseResponse<>("해당 신고에 대한 위험해요 공감 없음");
     }
-    @ExceptionHandler(NotFoundEnumException.class)
-    public BaseResponse<Void> notFoundEnumException (
+    @ExceptionHandler({NotFoundEnumException.class})
+    public BaseResponse<String> notFoundEnumException (
             NotFoundEnumException e) {
 
         return new BaseResponse<>("해당 enum은 존재하지 않음");
