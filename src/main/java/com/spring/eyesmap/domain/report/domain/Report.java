@@ -43,7 +43,6 @@ public class Report {
 
     @CreatedDate
     @Column(updatable = false, name = "report_date", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reportDate;
 
     @ManyToOne

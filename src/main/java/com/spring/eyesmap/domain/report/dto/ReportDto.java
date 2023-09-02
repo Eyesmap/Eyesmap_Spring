@@ -1,5 +1,7 @@
 package com.spring.eyesmap.domain.report.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spring.eyesmap.domain.report.domain.Location;
 import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
@@ -114,13 +116,15 @@ public class ReportDto {
     @Getter
     public static class ReportResponse{
         private String address;
-        private String contents;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime reportDate;
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private boolean isDangerBtnClicked;
         @Builder
-        public ReportResponse(Location location, Report report){
+        public ReportResponse(Location location, Report report, boolean isDangerBtnClicked){
             this.address = location.getAddress();
-            this.contents = report.getContents();
             this.reportDate = report.getReportDate();
+            this.isDangerBtnClicked = isDangerBtnClicked;
         }
     }
     @Getter
