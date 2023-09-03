@@ -2,6 +2,9 @@ package com.spring.eyesmap.domain.report.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spring.eyesmap.domain.report.domain.Report;
+import com.spring.eyesmap.global.enumeration.DistrictNum;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +21,18 @@ public class DataAnalysisDto {
     @Getter
     public static class DangerousLocationResponse{
         private Integer rank;
+        @Enumerated(EnumType.ORDINAL)
         private Integer guNum;
+        @Enumerated(EnumType.STRING)
+        private String guName;
         private Long reportCount;
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private String medal;
 
-        public DangerousLocationResponse(Integer rank, Integer gu, Long reportCount) {
+        public DangerousLocationResponse(Integer rank, DistrictNum gu, Long reportCount) {
             this.rank = rank;
-            this.guNum = gu;
+            this.guNum = gu.getNum();
+            this.guName = gu.getName();
             this.reportCount = reportCount;
         }
         public void setMedal(String medal){
