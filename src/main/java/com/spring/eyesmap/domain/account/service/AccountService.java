@@ -100,7 +100,7 @@ public class AccountService {
                     report.getLocation().getGpsX(), report.getLocation().getGpsY(),
                     report.getSort(), report.getDamagedStatus(),
                     report.getReportDangerousNum(), report.getLocation().getAddress(),
-                    report.getReportDate(), isDangerBtnClicked, distance));
+                    report.getReportDate(), isDangerBtnClicked, distance, report.getTitle()));
         }
 
         return AccountDto.ReportListResponseDto.builder()
@@ -142,7 +142,7 @@ public class AccountService {
                     dangerousCnt.getReport().getLocation().getGpsX(), dangerousCnt.getReport().getLocation().getGpsY(),
                     dangerousCnt.getReport().getSort(), dangerousCnt.getReport().getDamagedStatus(),
                     dangerousCnt.getReport().getReportDangerousNum(), dangerousCnt.getReport().getLocation().getAddress(),
-                    dangerousCnt.getReport().getReportDate(), isDangerBtnClicked, distance));
+                    dangerousCnt.getReport().getReportDate(), isDangerBtnClicked, distance, dangerousCnt.getReport().getTitle()));
         }
         return AccountDto.DangerousCntListResponseDto.builder()
                 .reportList(responseReportLists)

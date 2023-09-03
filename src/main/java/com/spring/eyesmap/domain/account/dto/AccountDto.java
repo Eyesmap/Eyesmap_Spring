@@ -71,6 +71,7 @@ public class AccountDto {
         private LocalDateTime reportDate;
         private boolean dangerBtnClicked;
         private Double distance;
+        private String title;
     }
     @Data
     @Getter
