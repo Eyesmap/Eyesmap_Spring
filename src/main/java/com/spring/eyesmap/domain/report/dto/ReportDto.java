@@ -82,6 +82,16 @@ public class ReportDto {
     public static class ReportDangerousCntRequest{
         private String reportId;
     }
+    @Getter
+    public static class DangerousReportResponse{
+        private boolean isDangerBtnClicked;
+        private Integer dangerousCnt;
+
+        public DangerousReportResponse(boolean isDangerBtnClicked, Integer reportDangerousNum) {
+            this.isDangerBtnClicked = isDangerBtnClicked;
+            this.dangerousCnt = reportDangerousNum;
+        }
+    }
 
     @Getter
     public static class CreateReportResponse{

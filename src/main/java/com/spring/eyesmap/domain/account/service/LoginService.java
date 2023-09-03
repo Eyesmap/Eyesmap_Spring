@@ -93,7 +93,7 @@ public class LoginService {
                 .userId(kakao_id)
                 .nickname(nickName)
                 .role(Role.ROLE_USER)
-                .profileImageUrl("https://"+bucket +
+                .profileImageUrl(bucket +
                         ".s3." +
                         region +
                         ".amazonaws.com/account/profile/image/" +

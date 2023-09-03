@@ -247,27 +247,31 @@ public class ReportServiceImpl implements ReportService{
     }
     @Override
     @Transactional
-    public void createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+    public ReportDto.DangerousReportResponse createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
         Long userId = SecurityUtil.getCurrentAccountId();
-
+        Report report;
+        boolean isDangerBtnClicked;
         if(!accountRepository.existsById(userId)){
             throw new NotFoundAccountException();
         }
         if (reportDangerourCntRepository.existsByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), userId)) {
-            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+            report = reportRepository.findById(reportDangerousCntRequest.getReportId())
                     .orElseThrow(()->new NotFoundReportException());
             ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(),userId)
                     .orElseThrow(() -> new NotFoundDangerousCntException());
 
             report.updateReportDangerousNum(report.getReportDangerousNum() - 1);
+            isDangerBtnClicked = false;
             reportDangerourCntRepository.delete(reportDangerousCnt);
         }else {
-            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+            report = reportRepository.findById(reportDangerousCntRequest.getReportId())
                     .orElseThrow(() -> new NotFoundReportException());
             ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, userId);
             reportDangerourCntRepository.save(reportDangerousCnt);
+            isDangerBtnClicked = true;
             report.updateReportDangerousNum(report.getReportDangerousNum() + 1);
         }
+        return new ReportDto.DangerousReportResponse(isDangerBtnClicked, report.getReportDangerousNum());
     }
 
     //관리자 -> 신고 복구 들어오면 삭제(해당 복구 신고 들어온 거 다 삭제)
