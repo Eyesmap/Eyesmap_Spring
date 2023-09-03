@@ -24,6 +24,17 @@ public class AccountDto {
         }
     }
 
+    @Getter
+    public static class FetchReportListRequestDto {
+        private Double userGpsX;
+        private Double userGpsY;
+    }
+
+    @Getter
+    public static class FetchDangerousCntListRequestDto {
+        private Double userGpsX;
+        private Double userGpsY;
+    }
 
     @Data
     @Getter
@@ -59,6 +70,7 @@ public class AccountDto {
         private String address;
         private LocalDateTime reportDate;
         private boolean dangerBtnClicked;
+        private Double distance;
     }
     @Data
     @Getter

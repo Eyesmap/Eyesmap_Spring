@@ -69,7 +69,7 @@ public class AccountService {
 //    private LocalDateTime reportDate; // report
 //    private boolean dangerBtnClicked;
     @Transactional
-    public AccountDto.ReportListResponseDto fetchReportList() {
+    public AccountDto.ReportListResponseDto fetchReportList(AccountDto.FetchReportListRequestDto fetchReportListRequestDto) {
         // get user
         Long userId = SecurityUtil.getCurrentAccountId();
         Account account = accountRepository.findById(userId)
@@ -91,6 +91,7 @@ public class AccountService {
                  imageList) {
                 imageUrlList.add(image.getUrl());
             }
+            double distance = distance(fetchReportListRequestDto.getUserGpsY(), fetchReportListRequestDto.getUserGpsX(), report.getLocation().getGpsY(), report.getLocation().getGpsX());
             boolean isDangerBtnClicked = userId!=null &&
                     reportDangerourCntRepository.existsByReportReportIdAndUserId(report.getReportId(), userId)
                     ?true:false;
@@ -99,7 +100,7 @@ public class AccountService {
                     report.getLocation().getGpsX(), report.getLocation().getGpsY(),
                     report.getSort(), report.getDamagedStatus(),
                     report.getReportDangerousNum(), report.getLocation().getAddress(),
-                    report.getReportDate(), isDangerBtnClicked));
+                    report.getReportDate(), isDangerBtnClicked, distance));
         }
 
         return AccountDto.ReportListResponseDto.builder()
@@ -108,7 +109,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountDto.DangerousCntListResponseDto fetchDangerousCntList() {
+    public AccountDto.DangerousCntListResponseDto fetchDangerousCntList(AccountDto.FetchDangerousCntListRequestDto fetchDangerousCntListRequestDto) {
         // get user
         Long userId = null;
         userId = SecurityUtil.getCurrentAccountId();
@@ -131,6 +132,8 @@ public class AccountService {
                     imageList) {
                 imageUrlList.add(image.getUrl());
             }
+            double distance = distance(fetchDangerousCntListRequestDto.getUserGpsY(), fetchDangerousCntListRequestDto.getUserGpsX(), dangerousCnt.getReport().getLocation().getGpsY(), dangerousCnt.getReport().getLocation().getGpsX());
+
             boolean isDangerBtnClicked = userId!=null &&
                     reportDangerourCntRepository.existsByReportReportIdAndUserId(dangerousCnt.getReport().getReportId(), userId)
                     ?true:false;
@@ -139,11 +142,31 @@ public class AccountService {
                     dangerousCnt.getReport().getLocation().getGpsX(), dangerousCnt.getReport().getLocation().getGpsY(),
                     dangerousCnt.getReport().getSort(), dangerousCnt.getReport().getDamagedStatus(),
                     dangerousCnt.getReport().getReportDangerousNum(), dangerousCnt.getReport().getLocation().getAddress(),
-                    dangerousCnt.getReport().getReportDate(), isDangerBtnClicked));
+                    dangerousCnt.getReport().getReportDate(), isDangerBtnClicked, distance));
         }
         return AccountDto.DangerousCntListResponseDto.builder()
                 .reportList(responseReportLists)
                 .build();
+    }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        //lat: 위도, lon: 경도
+        double theta = lon1 - lon2;
+        double dist = Math.sin(degToRad(lat1)) * Math.sin(degToRad(lat2)) + Math.cos(degToRad(lat1)) * Math.cos(degToRad(lat2)) * Math.cos(degToRad(theta));
+
+        dist = Math.acos(dist);
+        dist = radToDeg(dist);
+        dist = dist * 60 * 1.1515 * 1609.344;
+
+        return dist;
+    }
+
+    private static double degToRad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private static double radToDeg(double rad) {
+        return (rad * 180 / Math.PI);
     }
 
     @Transactional
