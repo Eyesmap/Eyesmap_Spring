@@ -5,10 +5,7 @@ import com.spring.eyesmap.domain.account.service.AccountService;
 import com.spring.eyesmap.global.response.BaseResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,16 +17,16 @@ public class AccountController {
     private final AccountService accountService;
 
     // 사용자 신고 내역 조회
-    @GetMapping("/api/account/report/list")
-    public BaseResponse<AccountDto.ReportListResponseDto> fetchReportList(){
-        AccountDto.ReportListResponseDto reportListResponseDto = accountService.fetchReportList();
+    @PostMapping("/api/account/report/list")
+    public BaseResponse<AccountDto.ReportListResponseDto> fetchReportList(@RequestBody AccountDto.FetchReportListRequestDto fetchReportListRequestDto){
+        AccountDto.ReportListResponseDto reportListResponseDto = accountService.fetchReportList(fetchReportListRequestDto);
         return new BaseResponse<>(reportListResponseDto);
     }
 
     // 사용자 공감 내역 조회
-    @GetMapping("/api/account/dangerouscnt/list")
-    public BaseResponse<AccountDto.DangerousCntListResponseDto> fetchDangerousCntList(){
-        AccountDto.DangerousCntListResponseDto dangerousCntListResponseDto = accountService.fetchDangerousCntList();
+    @PostMapping("/api/account/dangerouscnt/list")
+    public BaseResponse<AccountDto.DangerousCntListResponseDto> fetchDangerousCntList(@RequestBody AccountDto.FetchDangerousCntListRequestDto fetchDangerousCntListRequestDto){
+        AccountDto.DangerousCntListResponseDto dangerousCntListResponseDto = accountService.fetchDangerousCntList(fetchDangerousCntListRequestDto);
         return new BaseResponse<>(dangerousCntListResponseDto);
     }
 
