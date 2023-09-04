@@ -130,11 +130,13 @@ public class ReportDto {
         private LocalDateTime reportDate;
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private boolean isDangerBtnClicked;
+        private Integer dangerousCnt;
         @Builder
         public ReportResponse(Location location, Report report, boolean isDangerBtnClicked){
             this.address = location.getAddress();
             this.reportDate = report.getReportDate();
             this.isDangerBtnClicked = isDangerBtnClicked;
+            this.dangerousCnt = report.getReportDangerousNum();
         }
     }
     @Getter
