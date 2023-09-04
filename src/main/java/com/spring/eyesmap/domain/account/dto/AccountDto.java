@@ -1,11 +1,9 @@
 package com.spring.eyesmap.domain.account.dto;
 
-import com.spring.eyesmap.global.enumeration.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.spring.eyesmap.global.enumeration.ReportEnum;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class AccountDto {
@@ -22,6 +20,19 @@ public class AccountDto {
         }
     }
 
+
+
+    @Getter
+    public static class FetchReportListRequestDto {
+        private Double userGpsX;
+        private Double userGpsY;
+    }
+
+    @Getter
+    public static class FetchDangerousCntListRequestDto {
+        private Double userGpsX;
+        private Double userGpsY;
+    }
 
     @Data
     @Getter
@@ -43,17 +54,29 @@ public class AccountDto {
         }
     }
 
-    @AllArgsConstructor
     @Getter
+    @AllArgsConstructor
     public static class MyPageList{
 
         private String reportId;
-        private String imageUrl;
+        private List<String> imageName;
+        private Double gpsX;
+        private Double gpsY;
+        private ReportEnum.Sort sort;
+        private ReportEnum.DamagedStatus damagedStatus;
+        private Integer dangerousCnt;
+        private String address;
+        private LocalDateTime reportDate;
+        private boolean dangerBtnClicked;
+        private Double distance;
+        private String title;
+
     }
 
     @Data
     @Getter
     public static class RankingResponseDto {
+
         private List<RankingListTop3> rankingListTop3;
         private List<OtherRankingList> otherRankingList;
         @Builder

@@ -8,10 +8,13 @@ import com.spring.eyesmap.domain.image.domain.Image;
 import com.spring.eyesmap.domain.image.dto.ImageDto;
 import com.spring.eyesmap.domain.image.repository.ImageRepository;
 import com.spring.eyesmap.domain.image.service.S3UploaderService;
+import com.spring.eyesmap.domain.report.domain.Location;
 import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.domain.report.domain.ReportDangerousCnt;
+import com.spring.eyesmap.domain.report.repository.LocationRepository;
 import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
+import com.spring.eyesmap.global.enumeration.ReportEnum;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -53,8 +57,20 @@ public class AccountService {
     @Value("${kakao.admin-key}")
     private String adminKey;
 
+    //    private String reportId; // report
+//    private List<String> imageName; // image
+//    private Double gpsX; // location
+//    private Double gpsY; // location
+//    private ReportEnum.Sort sort; // report
+//    private ReportEnum.DamagedStatus damagedStatus; // report
+//    private Integer dangerousCnt; // report
+//    private String address; // location
+//    private LocalDateTime reportDate; // report
+//    private boolean dangerBtnClicked;
+
+
     @Transactional
-    public AccountDto.ReportListResponseDto fetchReportList() {
+    public AccountDto.ReportListResponseDto fetchReportList(AccountDto.FetchReportListRequestDto fetchReportListRequestDto) {
         // get user
         Long userId = SecurityUtil.getCurrentAccountId();
         Account account = accountRepository.findById(userId)
@@ -68,8 +84,21 @@ public class AccountService {
         for (Report report:
              reportList) {
             List<Image> imageList = imageRepository.findByReport(report);
+            List<String> imageUrlList = new ArrayList<>();
+            for (Image image:
+                    imageList) {
+                imageUrlList.add(image.getUrl());
+            }
+            double distance = distance(fetchReportListRequestDto.getUserGpsY(), fetchReportListRequestDto.getUserGpsX(), report.getLocation().getGpsY(), report.getLocation().getGpsX());
+            boolean isDangerBtnClicked = userId!=null &&
+                    reportDangerourCntRepository.existsByReportReportIdAndUserId(report.getReportId(), userId)
+                    ?true:false;
             log.info("imageListId= "+ imageList.get(0).getId());
-            responseReportLists.add(new AccountDto.MyPageList(report.getReportId(), imageList.get(0).getUrl()));
+            responseReportLists.add(new AccountDto.MyPageList(report.getReportId(), imageUrlList,
+                    report.getLocation().getGpsX(), report.getLocation().getGpsY(),
+                    report.getSort(), report.getDamagedStatus(),
+                    report.getReportDangerousNum(), report.getLocation().getAddress(),
+                    report.getReportDate(), isDangerBtnClicked, distance, report.getTitle()));
         }
 
         return AccountDto.ReportListResponseDto.builder()
@@ -78,7 +107,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountDto.DangerousCntListResponseDto fetchDangerousCntList() {
+    public AccountDto.DangerousCntListResponseDto fetchDangerousCntList(AccountDto.FetchDangerousCntListRequestDto fetchDangerousCntListRequestDto) {
         // get user
         Long userId = null;
         userId = SecurityUtil.getCurrentAccountId();
@@ -90,16 +119,53 @@ public class AccountService {
         log.info("reportListId= "+ reportList.get(0).getReport().getReportId());
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
-        for (ReportDangerousCnt report:
+        for (ReportDangerousCnt dangerousCnt:
                 reportList) {
-            List<Image> imageList = imageRepository.findByReport(report.getReport());
+            List<Image> imageList = imageRepository.findByReport(dangerousCnt.getReport());
+            List<String> imageUrlList = new ArrayList<>();
+            for (Image image:
+                    imageList) {
+                imageUrlList.add(image.getUrl());
+            }
+            double distance = distance(fetchDangerousCntListRequestDto.getUserGpsY(), fetchDangerousCntListRequestDto.getUserGpsX(), dangerousCnt.getReport().getLocation().getGpsY(), dangerousCnt.getReport().getLocation().getGpsX());
+
+            boolean isDangerBtnClicked = userId!=null &&
+                    reportDangerourCntRepository.existsByReportReportIdAndUserId(dangerousCnt.getReport().getReportId(), userId)
+                    ?true:false;
+
             log.info("imageListId= "+ imageList.get(0).getId());
-            responseReportLists.add(new AccountDto.MyPageList(report.getReport().getReportId(), imageList.get(0).getUrl()));
+            responseReportLists.add(new AccountDto.MyPageList(dangerousCnt.getReport().getReportId(), imageUrlList,
+                    dangerousCnt.getReport().getLocation().getGpsX(), dangerousCnt.getReport().getLocation().getGpsY(),
+                    dangerousCnt.getReport().getSort(), dangerousCnt.getReport().getDamagedStatus(),
+                    dangerousCnt.getReport().getReportDangerousNum(), dangerousCnt.getReport().getLocation().getAddress(),
+                    dangerousCnt.getReport().getReportDate(), isDangerBtnClicked, distance, dangerousCnt.getReport().getTitle()));
         }
         return AccountDto.DangerousCntListResponseDto.builder()
                 .reportList(responseReportLists)
                 .build();
     }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        //lat: 위도, lon: 경도
+        double theta = lon1 - lon2;
+        double dist = Math.sin(degToRad(lat1)) * Math.sin(degToRad(lat2)) + Math.cos(degToRad(lat1)) * Math.cos(degToRad(lat2)) * Math.cos(degToRad(theta));
+
+        dist = Math.acos(dist);
+        dist = radToDeg(dist);
+        dist = dist * 60 * 1.1515 * 1609.344;
+
+        return dist;
+    }
+
+    private static double degToRad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private static double radToDeg(double rad) {
+        return (rad * 180 / Math.PI);
+    }
+
+
 
     @Transactional
     public AccountDto.RankingResponseDto fetchRankingList() {
