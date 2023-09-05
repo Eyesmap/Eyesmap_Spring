@@ -46,6 +46,7 @@ public class ReportServiceImpl implements ReportService{
     private final Integer REPORT_REQUEST_NUM = 3; //
 
     @Override
+    @Transactional
     public ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFiles, ReportDto.CreateReportRequest createReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
         String dirNm = "report/"+reportedStatus + "/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
         System.out.println(dirNm);
@@ -86,6 +87,7 @@ public class ReportServiceImpl implements ReportService{
         return saveReport(multipartFiles, report, location, account, dirNm, imageSort);
     }
     @Override
+    @Transactional
     public ReportDto.CreateReportResponse createRestoreReport(List<MultipartFile> multipartFiles, ReportDto.CreateRestoreReportRequest createRestoreReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
         Report report = reportRepository.findById(createRestoreReportRequest.getReportId()).orElseThrow(() -> new NotFoundReportException());
         String dirNm = "report/" + reportedStatus + "/" + report.getSort() + "/" + report.getDamagedStatus();
