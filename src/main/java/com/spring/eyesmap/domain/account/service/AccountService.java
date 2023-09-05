@@ -77,7 +77,7 @@ public class AccountService {
                 .orElseThrow(() -> new NotFoundAccountException());
         log.info("accountId= "+ account.getUserId());
         // get report (writer)
-        List<Report> reportList = reportRepository.findByAccount(account);
+        List<Report> reportList = reportRepository.findByAccountAndReportedStatus(account, ReportEnum.ReportedStatus.DAMAGE);
         log.info("reportListId= "+ reportList.get(0).getReportId());
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
