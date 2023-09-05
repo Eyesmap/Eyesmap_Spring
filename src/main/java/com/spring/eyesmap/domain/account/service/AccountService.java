@@ -244,8 +244,15 @@ public class AccountService {
                 .orElseThrow(() -> new NotFoundAccountException());
         log.info("accountId= "+ account.getUserId());
 
+        if (!account.getProfileImageUrl().equals("https://" + bucket +
+                ".s3." +
+                region +
+                ".amazonaws.com/" +
+                imageBasicUrl +
+                basicImageName)){
+            s3UploaderService.deleteFile(account.getImageName());
+        }
         // delete old image
-        s3UploaderService.deleteFile(account.getImageName());
         // update basic Image
         account.updateImage("https://" + bucket +
                 ".s3." +
