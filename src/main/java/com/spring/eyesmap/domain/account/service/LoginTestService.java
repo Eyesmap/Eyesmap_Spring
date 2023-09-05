@@ -27,6 +27,13 @@ public class LoginTestService {
     @Value("${kakao.oauth2.login.redirect_uri}")
     private String redirectUri;
 
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
+
+    private final String imageName = "basicimage.jpeg";
     private final AccountRepository accountRepository;
 
     public void login(String code, HttpSession httpSession) {
@@ -58,6 +65,12 @@ public class LoginTestService {
                     .userId(id)
                     .nickname(nickname)
                     .role(Role.ROLE_USER)
+                    .profileImageUrl("https://"+bucket +
+                            ".s3." +
+                            region +
+                            ".amazonaws.com/account/profile/image/" +
+                            imageName)
+                    .imageName("account/profile/image/" + imageName)
                     .build();
             accountRepository.save(kakaoAccount);
         }
