@@ -15,6 +15,7 @@ import com.spring.eyesmap.domain.report.repository.LocationRepository;
 import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
+import com.spring.eyesmap.global.enumeration.VoiceOnOff;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -269,10 +270,18 @@ public class AccountService {
                 .orElseThrow(() -> new NotFoundAccountException());
         log.info("accountId= " + account.getUserId());
 
+        boolean onOffBtn;
+        if(account.getVoiceOnOff().equals(VoiceOnOff.VOICE_ON)){
+            onOffBtn = true;
+        }else{
+            onOffBtn = false;
+        }
+
         AccountDto.FetchAccountResponseDto fetchAccountResponseDto = new AccountDto.FetchAccountResponseDto(
                 account.getNickname(),
                 account.getProfileImageUrl(),
-                account.getImageName());
+                account.getImageName(),
+                onOffBtn);
 
         return fetchAccountResponseDto;
     }
