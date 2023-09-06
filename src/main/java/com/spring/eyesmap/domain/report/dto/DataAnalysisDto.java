@@ -15,6 +15,8 @@ public class DataAnalysisDto {
     @Getter
     @Builder
     public static class DangerousTop10GuListResponse{
+        private Long allReportsCnt;
+        private String currentDateAndHour;
         private List<DangerousLocationResponse> top3Location;
         private List<DangerousLocationResponse> theOthers;
     }
@@ -43,6 +45,8 @@ public class DataAnalysisDto {
     @Getter
     @Builder
     public static class DangerousTop10ReportListResponse{
+        private Long allReportsCnt;
+        private String currentDateAndHour;
         private List<DangerousReportPerGuResponse> top3Report;
         private List<DangerousReportPerGuResponse> theOthers;
     }
