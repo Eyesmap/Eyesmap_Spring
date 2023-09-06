@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum DistrictNum {
-    DOBONG_GU("도봉", 1),  NOWON_GU("노원", 2), GANGBUK_GU("강북", 3),
-    EUNPYEONG_GU("은평", 4),SEONGBUK_GU("성북", 5), JUNGNANG_GU("중랑", 6),
-    JONGNO_GU("종로", 7),DONGDAEMUN_GU("동대문", 8), SEODAEMUN_GU("서대문", 9),
-    GANGDONG_GU("강동", 10),JUNG_GU("중", 11),GANGSEO_GU("강서", 12),
-    MAPO_GU("마포", 13), SEONGDONG_GU("성동", 14), YONGSAN_GU("용산", 15),
-    GWANGJIN_GU("광진", 16), YEONGDEUNGPO_GU("영등포", 17), YANGCHEON_GU("양천", 18),
-    DONGJAK_GU("동작", 19), SONGPA_GU("송파", 20), GANGNAM_GU("강남", 21),
-    SEOCHO_GU("서초", 22), GWANAK_GU("관악", 23), GEUMCHEON_GU("금천", 24),
-    GURO_GU("구로", 25);
+    DOBONG_GU("도봉", 0),  NOWON_GU("노원", 1), GANGBUK_GU("강북", 2),
+    EUNPYEONG_GU("은평", 3),SEONGBUK_GU("성북", 4), JUNGNANG_GU("중랑", 5),
+    JONGNO_GU("종로", 6),DONGDAEMUN_GU("동대문", 7), SEODAEMUN_GU("서대문", 8),
+    GANGDONG_GU("강동", 9),JUNG_GU("중", 10),GANGSEO_GU("강서", 11),
+    MAPO_GU("마포", 12), SEONGDONG_GU("성동", 13), YONGSAN_GU("용산", 14),
+    GWANGJIN_GU("광진", 15), YEONGDEUNGPO_GU("영등포", 16), YANGCHEON_GU("양천", 17),
+    DONGJAK_GU("동작", 18), SONGPA_GU("송파", 19), GANGNAM_GU("강남", 20),
+    SEOCHO_GU("서초", 21), GWANAK_GU("관악", 22), GEUMCHEON_GU("금천", 23),
+    GURO_GU("구로", 24);
 
     final private String guName;
     final private Integer guNum;
