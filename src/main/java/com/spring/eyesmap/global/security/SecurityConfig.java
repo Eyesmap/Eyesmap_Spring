@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/report/create/**").authenticated()
                         .requestMatchers("/api/report/delete").authenticated()
                         .requestMatchers("/api/report/dangerouscnt").authenticated()
+                        .requestMatchers("/api/voice/onoff").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .build();

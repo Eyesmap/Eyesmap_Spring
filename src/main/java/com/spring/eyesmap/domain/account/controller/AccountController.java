@@ -37,6 +37,13 @@ public class AccountController {
         return new BaseResponse<>(fetchAccountResponseDto);
     }
 
+    // 명예의 전당 내 기록 조회
+    @GetMapping("/api/account/ranking/mine")
+    public BaseResponse<AccountDto.MyReportResponseDto> fetchMyReport(){
+        AccountDto.MyReportResponseDto myReportResponseDto = accountService.fetchMyReport();
+        return new BaseResponse<>(myReportResponseDto);
+    }
+
     // 명예의 전당 랭킹 조회
     @GetMapping("/api/account/ranking/list")
     public BaseResponse<AccountDto.RankingResponseDto> fetchRankingList(){

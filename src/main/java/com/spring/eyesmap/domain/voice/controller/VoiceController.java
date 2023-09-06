@@ -14,9 +14,15 @@ public class VoiceController {
 
     private final VoiceService voiceService;
 
-    @GetMapping("/api/voice/file/{reportsort}")
-    public BaseResponse<VoiceDto.VoiceFileRequest> fetchVoiceFile(@PathVariable("reportsort") String reportEnumSort){
-        VoiceDto.VoiceFileRequest voiceFileRequest = voiceService.fetchVoiceFile(reportEnumSort);
+    @GetMapping("/api/voice/file/{reportId}")
+    public BaseResponse<VoiceDto.VoiceFileRequest> fetchVoiceFile(@PathVariable("reportId") String reportId){
+        VoiceDto.VoiceFileRequest voiceFileRequest = voiceService.fetchVoiceFile(reportId);
         return new BaseResponse<>(voiceFileRequest);
+    }
+
+    @GetMapping("/api/voice/onoff")
+    public BaseResponse<Void> changeVoiceOnOff(){
+        voiceService.changeVoiceOnOff();
+        return new BaseResponse<>();
     }
 }

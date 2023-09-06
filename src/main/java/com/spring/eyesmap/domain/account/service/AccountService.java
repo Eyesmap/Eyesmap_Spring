@@ -297,5 +297,19 @@ public class AccountService {
         );
         log.info("all account info= " + response);
     }
+
+    @Transactional
+    public AccountDto.MyReportResponseDto fetchMyReport() {
+        // get user
+        Long userId = SecurityUtil.getCurrentAccountId();
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundAccountException());
+        log.info("accountId= " + account.getUserId());
+
+        List<Report> reportList = reportRepository.findByAccount(account);
+
+        AccountDto.MyReportResponseDto myReportResponseDto = new AccountDto.MyReportResponseDto(account.getNickname(), account.getProfileImageUrl(), reportList.size());
+        return myReportResponseDto;
+    }
 }
 

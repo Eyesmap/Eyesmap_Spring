@@ -120,4 +120,12 @@ public class AccountDto {
     public static class UpdateProfileImageReqeuestDto {
         private String nickname;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class MyReportResponseDto {
+        private String nickname;
+        private String profileImageUrl;
+        private Integer ReportCnt;
+    }
 }
