@@ -25,9 +25,4 @@ public class VoiceController {
         voiceService.changeVoiceOnOff();
         return new BaseResponse<>();
     }
-
-
-    // onoff 기능 추가
-    // off면 voice 막기
-    // voice 나오는거 reportId로 변경
 }

@@ -22,4 +22,5 @@ public interface ReportRepository extends JpaRepository<Report, String> {
     @Query("SELECT r FROM report r WHERE r.gu = :guNum AND r.reportDangerousNum > 0 ORDER BY r.reportDangerousNum DESC")
     List<Report> findTop10ReportsByGuOrderByReportDangerousNumDesc(Integer guNum);
 
+    List<Report> findByAccount(Account account);
 }
