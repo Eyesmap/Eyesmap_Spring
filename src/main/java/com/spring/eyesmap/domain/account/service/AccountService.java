@@ -82,7 +82,7 @@ public class AccountService {
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
         for (Report report:
-             reportList) {
+                reportList) {
             List<Image> imageList = imageRepository.findByReport(report);
             List<String> imageUrlList = new ArrayList<>();
             for (Image image:
@@ -176,10 +176,10 @@ public class AccountService {
         List<AccountDto.RankingListTop3> rankingListTop3 = new ArrayList<>();
         List<AccountDto.OtherRankingList> otherRankingList = new ArrayList<>();
         for (RankingList r:
-             rankingList) {
+                rankingList) {
 
             if (rank <= 3){
-                String medalImageUrl = bucket +
+                String medalImageUrl = "https://" + bucket +
                         ".s3." +
                         region +
                         ".amazonaws.com/" +
@@ -253,7 +253,7 @@ public class AccountService {
         }
         // delete old image
         // update basic Image
-        account.updateImage(bucket +
+        account.updateImage("https://" + bucket +
                 ".s3." +
                 region +
                 ".amazonaws.com/" +
@@ -298,3 +298,4 @@ public class AccountService {
         log.info("all account info= " + response);
     }
 }
+
