@@ -14,7 +14,7 @@ import java.util.List;
 public interface ReportRepository extends JpaRepository<Report, String> {
     List<Report> findAllByReportedStatus(ReportEnum.ReportedStatus reportedStatus);
     List<Report> findAllByGuAndReportedStatus(Integer gu, ReportEnum.ReportedStatus reportedStatus);
-    List<Report> findByAccount(Account account);
+    List<Report> findByAccountAndReportedStatus(Account account, ReportEnum.ReportedStatus reportedStatus);
 
     @Query("SELECT r.gu, COUNT(r) AS reportCount FROM report r group by r.gu order by reportCount DESC")
     List<Object[]> findTop10Gu();

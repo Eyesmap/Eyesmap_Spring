@@ -82,6 +82,16 @@ public class ReportDto {
     public static class ReportDangerousCntRequest{
         private String reportId;
     }
+    @Getter
+    public static class DangerousReportResponse{
+        private boolean isDangerBtnClicked;
+        private Integer dangerousCnt;
+
+        public DangerousReportResponse(boolean isDangerBtnClicked, Integer reportDangerousNum) {
+            this.isDangerBtnClicked = isDangerBtnClicked;
+            this.dangerousCnt = reportDangerousNum;
+        }
+    }
 
     @Getter
     public static class CreateReportResponse{
@@ -120,11 +130,13 @@ public class ReportDto {
         private LocalDateTime reportDate;
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private boolean isDangerBtnClicked;
+        private Integer dangerousCnt;
         @Builder
         public ReportResponse(Location location, Report report, boolean isDangerBtnClicked){
             this.address = location.getAddress();
             this.reportDate = report.getReportDate();
             this.isDangerBtnClicked = isDangerBtnClicked;
+            this.dangerousCnt = report.getReportDangerousNum();
         }
     }
     @Getter

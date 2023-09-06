@@ -53,8 +53,7 @@ public class ReportController {
     }
 
     @PostMapping("/dangerouscnt")
-    public BaseResponse<Void> createOrCancelReportDangeroutCnt(@RequestBody ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
-        reportService.createOrCancelReportDangeroutCnt(reportDangerousCntRequest);
-        return new BaseResponse<>();
+    public BaseResponse<ReportDto.DangerousReportResponse> createOrCancelReportDangeroutCnt(@RequestBody ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+        return new BaseResponse<>(reportService.createOrCancelReportDangeroutCnt(reportDangerousCntRequest));
     }
 }

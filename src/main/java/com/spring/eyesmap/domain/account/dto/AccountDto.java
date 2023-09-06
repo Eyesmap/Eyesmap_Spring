@@ -1,10 +1,6 @@
 package com.spring.eyesmap.domain.account.dto;
 
 import com.spring.eyesmap.global.enumeration.ReportEnum;
-import com.spring.eyesmap.global.enumeration.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,6 +19,8 @@ public class AccountDto {
             this.refreshToken = refreshToken;
         }
     }
+
+
 
     @Getter
     public static class FetchReportListRequestDto {
@@ -72,7 +70,9 @@ public class AccountDto {
         private boolean dangerBtnClicked;
         private Double distance;
         private String title;
+
     }
+
     @Data
     @Getter
     public static class RankingResponseDto {

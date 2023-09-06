@@ -5,6 +5,7 @@ import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.domain.report.dto.DataAnalysisDto;
 import com.spring.eyesmap.domain.report.repository.LocationRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
+import com.spring.eyesmap.global.enumeration.DistrictNum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,7 @@ public class DataAnalysisService {
         List<DataAnalysisDto.DangerousLocationResponse> otherList = new ArrayList<>();
 
         for (Object[] guInfo : reportRepository.findTop10Gu()){
-            Integer gu = (Integer) guInfo[0];
+            DistrictNum gu = DistrictNum.numOf((Integer) guInfo[0]);
             Long reportCount = (Long) guInfo[1];
 
             if(previousValue == null){
