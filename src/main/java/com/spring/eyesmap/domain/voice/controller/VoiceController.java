@@ -21,8 +21,7 @@ public class VoiceController {
     }
 
     @GetMapping("/api/voice/onoff")
-    public BaseResponse<Void> changeVoiceOnOff(){
-        voiceService.changeVoiceOnOff();
-        return new BaseResponse<>();
+    public BaseResponse<Boolean> changeVoiceOnOff(){
+        return new BaseResponse<>(voiceService.changeVoiceOnOff());
     }
 }
