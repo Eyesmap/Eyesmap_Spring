@@ -46,8 +46,8 @@ public class AccountController {
 
     // 프로필 사진 변경
     @PostMapping("/api/account/profile/image/update")
-    public BaseResponse<Void> updateProfileImage(@RequestPart("image") MultipartFile image) throws IOException {
-        accountService.updateProfileImage(image);
+    public BaseResponse<Void> updateProfileImage(@RequestPart("image") MultipartFile image, @RequestPart AccountDto.UpdateProfileImageReqeuestDto updateProfileImageReqeuestDto) throws IOException {
+        accountService.updateProfileImage(image, updateProfileImageReqeuestDto);
         return new BaseResponse<>();
     }
 
