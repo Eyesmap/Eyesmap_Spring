@@ -37,6 +37,10 @@ public class Account {
         this.imageName = imageName;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public void updateImage(String profileImageUrl, String imageName) {
         this.profileImageUrl = profileImageUrl;
         this.imageName = imageName;

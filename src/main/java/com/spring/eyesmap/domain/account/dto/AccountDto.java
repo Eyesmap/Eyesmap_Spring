@@ -114,4 +114,10 @@ public class AccountDto {
         private String profileImageUrl;
         private String imageName;
     }
+
+    @Data
+    @Getter
+    public static class UpdateProfileImageReqeuestDto {
+        private String nickname;
+    }
 }

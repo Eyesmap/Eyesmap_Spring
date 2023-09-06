@@ -208,7 +208,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void updateProfileImage(MultipartFile image) throws IOException {
+    public void updateProfileImage(MultipartFile image, AccountDto.UpdateProfileImageReqeuestDto updateProfileImageReqeuestDto) throws IOException {
         // get user
         Long userId = SecurityUtil.getCurrentAccountId();
         Account account = accountRepository.findById(userId)
@@ -230,6 +230,7 @@ public class AccountService {
         imageList.add(image);
         List<ImageDto.S3UploadResponse> imagesResponse = s3UploaderService.upload(imageList, imageBasicUrl + userId.toString());
 
+        account.updateNickname(updateProfileImageReqeuestDto.getNickname());
         account.updateImage(imagesResponse.get(0).getImgUrl(), imagesResponse.get(0).getImgFileNm());
         accountRepository.save(account);
     }
@@ -242,8 +243,15 @@ public class AccountService {
                 .orElseThrow(() -> new NotFoundAccountException());
         log.info("accountId= "+ account.getUserId());
 
+        if (!account.getProfileImageUrl().equals("https://" + bucket +
+                ".s3." +
+                region +
+                ".amazonaws.com/" +
+                imageBasicUrl +
+                basicImageName)){
+            s3UploaderService.deleteFile(account.getImageName());
+        }
         // delete old image
-        s3UploaderService.deleteFile(account.getImageName());
         // update basic Image
         account.updateImage(bucket +
                 ".s3." +
