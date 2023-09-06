@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +72,8 @@ public class DataAnalysisService {
 
         }
         return DataAnalysisDto.DangerousTop10GuListResponse.builder()
+                .allReportsCnt(countAllReportInSeoul())
+                .currentDateAndHour(getCurrentTime())
                 .top3Location(top3GuList)
                 .theOthers(otherList)
                 .build();
@@ -118,8 +122,20 @@ public class DataAnalysisService {
 
         }
         return DataAnalysisDto.DangerousTop10ReportListResponse.builder()
+                .allReportsCnt(countAllReportInSeoul())
+                .currentDateAndHour(getCurrentTime())
                 .top3Report(top3ReportPerGuList)
                 .theOthers(otherList)
                 .build();
+    }
+
+    private String getCurrentTime(){
+        String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH"));
+        String result = dateTime + "시 기준";
+        return  dateTime + "시 기준";
+    }
+
+    private Long countAllReportInSeoul(){
+        return reportRepository.count();
     }
 }
