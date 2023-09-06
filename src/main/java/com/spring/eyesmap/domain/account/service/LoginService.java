@@ -4,6 +4,7 @@ import com.spring.eyesmap.domain.account.domain.Account;
 import com.spring.eyesmap.domain.account.dto.AccountDto;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.enumeration.Role;
+import com.spring.eyesmap.global.enumeration.VoiceOnOff;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.jwt.JwtTokenProvider;
 import com.spring.eyesmap.global.oauth.KakaoUserInfo;
@@ -99,6 +100,7 @@ public class LoginService {
                         ".amazonaws.com/account/profile/image/" +
                         imageName)
                 .imageName("account/profile/image/" + imageName)
+                .voiceOnOff(VoiceOnOff.VOICE_ON)
                 .build();
 
         accountRepository.save(signInAccount);

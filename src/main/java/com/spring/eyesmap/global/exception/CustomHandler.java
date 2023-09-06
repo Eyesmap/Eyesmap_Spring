@@ -60,4 +60,11 @@ public class CustomHandler {
         return new BaseResponse<>("해당 enum은 존재하지 않음");
 
     }
+
+    @ExceptionHandler({VoiceOffException.class})
+    public BaseResponse<String> voiceOffException (
+            VoiceOffException e) {
+
+        return new BaseResponse<>("음성 기능이 꺼져있음");
+    }
 }
