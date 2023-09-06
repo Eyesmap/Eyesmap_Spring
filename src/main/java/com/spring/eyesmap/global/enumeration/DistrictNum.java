@@ -36,4 +36,12 @@ public enum DistrictNum {
         }
         return null;
     }
+    public static DistrictNum numOf(Integer guNum) {
+        for (DistrictNum enumGu : DistrictNum.values()) {
+            if (enumGu.getNum().equals(guNum)) {
+                return enumGu;
+            }
+        }
+        return null;
+    }
 }

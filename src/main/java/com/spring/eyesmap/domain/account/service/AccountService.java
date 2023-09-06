@@ -16,8 +16,6 @@ import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
-import com.spring.eyesmap.global.exception.NotFoundDangerousCntException;
-import com.spring.eyesmap.global.exception.NotFoundReportException;
 import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +56,8 @@ public class AccountService {
 
     @Value("${kakao.admin-key}")
     private String adminKey;
-//    private String reportId; // report
+
+    //    private String reportId; // report
 //    private List<String> imageName; // image
 //    private Double gpsX; // location
 //    private Double gpsY; // location
@@ -68,6 +67,8 @@ public class AccountService {
 //    private String address; // location
 //    private LocalDateTime reportDate; // report
 //    private boolean dangerBtnClicked;
+
+
     @Transactional
     public AccountDto.ReportListResponseDto fetchReportList(AccountDto.FetchReportListRequestDto fetchReportListRequestDto) {
         // get user
@@ -76,10 +77,7 @@ public class AccountService {
                 .orElseThrow(() -> new NotFoundAccountException());
         log.info("accountId= "+ account.getUserId());
         // get report (writer)
-        List<Report> reportList = reportRepository.findByAccount(account);
-        if (reportList.isEmpty()){
-            throw new NotFoundReportException();
-        }
+        List<Report> reportList = reportRepository.findByAccountAndReportedStatus(account, ReportEnum.ReportedStatus.DAMAGE);
         log.info("reportListId= "+ reportList.get(0).getReportId());
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
@@ -88,7 +86,7 @@ public class AccountService {
             List<Image> imageList = imageRepository.findByReport(report);
             List<String> imageUrlList = new ArrayList<>();
             for (Image image:
-                 imageList) {
+                    imageList) {
                 imageUrlList.add(image.getUrl());
             }
             double distance = distance(fetchReportListRequestDto.getUserGpsY(), fetchReportListRequestDto.getUserGpsX(), report.getLocation().getGpsY(), report.getLocation().getGpsX());
@@ -118,9 +116,6 @@ public class AccountService {
         }
         // get report (thumps up)
         List<ReportDangerousCnt> reportList = reportDangerourCntRepository.findByUserId(userId);
-        if (reportList.isEmpty()){
-            throw new NotFoundDangerousCntException();
-        }
         log.info("reportListId= "+ reportList.get(0).getReport().getReportId());
 
         List<AccountDto.MyPageList> responseReportLists = new ArrayList<>();
@@ -137,6 +132,7 @@ public class AccountService {
             boolean isDangerBtnClicked = userId!=null &&
                     reportDangerourCntRepository.existsByReportReportIdAndUserId(dangerousCnt.getReport().getReportId(), userId)
                     ?true:false;
+
             log.info("imageListId= "+ imageList.get(0).getId());
             responseReportLists.add(new AccountDto.MyPageList(dangerousCnt.getReport().getReportId(), imageUrlList,
                     dangerousCnt.getReport().getLocation().getGpsX(), dangerousCnt.getReport().getLocation().getGpsY(),
@@ -169,6 +165,8 @@ public class AccountService {
         return (rad * 180 / Math.PI);
     }
 
+
+
     @Transactional
     public AccountDto.RankingResponseDto fetchRankingList() {
         Integer rank = 1;
@@ -181,7 +179,7 @@ public class AccountService {
              rankingList) {
 
             if (rank <= 3){
-                String medalImageUrl = "https://" +bucket +
+                String medalImageUrl = bucket +
                         ".s3." +
                         region +
                         ".amazonaws.com/" +
@@ -255,7 +253,7 @@ public class AccountService {
         }
         // delete old image
         // update basic Image
-        account.updateImage("https://" + bucket +
+        account.updateImage(bucket +
                 ".s3." +
                 region +
                 ".amazonaws.com/" +

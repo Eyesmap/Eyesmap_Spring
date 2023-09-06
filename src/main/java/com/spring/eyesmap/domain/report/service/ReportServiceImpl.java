@@ -46,6 +46,7 @@ public class ReportServiceImpl implements ReportService{
     private final Integer REPORT_REQUEST_NUM = 3; //
 
     @Override
+    @Transactional
     public ReportDto.CreateReportResponse createReport(List<MultipartFile> multipartFiles, ReportDto.CreateReportRequest createReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
         String dirNm = "report/"+reportedStatus + "/"+ createReportRequest.getSort()+"/"+createReportRequest.getDamagedStatus();
         System.out.println(dirNm);
@@ -86,6 +87,7 @@ public class ReportServiceImpl implements ReportService{
         return saveReport(multipartFiles, report, location, account, dirNm, imageSort);
     }
     @Override
+    @Transactional
     public ReportDto.CreateReportResponse createRestoreReport(List<MultipartFile> multipartFiles, ReportDto.CreateRestoreReportRequest createRestoreReportRequest, ReportEnum.ReportedStatus reportedStatus, ImageSort imageSort) throws IOException {
         Report report = reportRepository.findById(createRestoreReportRequest.getReportId()).orElseThrow(() -> new NotFoundReportException());
         String dirNm = "report/" + reportedStatus + "/" + report.getSort() + "/" + report.getDamagedStatus();
@@ -247,27 +249,31 @@ public class ReportServiceImpl implements ReportService{
     }
     @Override
     @Transactional
-    public void createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
+    public ReportDto.DangerousReportResponse createOrCancelReportDangeroutCnt(ReportDto.ReportDangerousCntRequest reportDangerousCntRequest){
         Long userId = SecurityUtil.getCurrentAccountId();
-
+        Report report;
+        boolean isDangerBtnClicked;
         if(!accountRepository.existsById(userId)){
             throw new NotFoundAccountException();
         }
         if (reportDangerourCntRepository.existsByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(), userId)) {
-            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+            report = reportRepository.findById(reportDangerousCntRequest.getReportId())
                     .orElseThrow(()->new NotFoundReportException());
             ReportDangerousCnt reportDangerousCnt = reportDangerourCntRepository.findByReportReportIdAndUserId(reportDangerousCntRequest.getReportId(),userId)
                     .orElseThrow(() -> new NotFoundDangerousCntException());
 
             report.updateReportDangerousNum(report.getReportDangerousNum() - 1);
+            isDangerBtnClicked = false;
             reportDangerourCntRepository.delete(reportDangerousCnt);
         }else {
-            Report report = reportRepository.findById(reportDangerousCntRequest.getReportId())
+            report = reportRepository.findById(reportDangerousCntRequest.getReportId())
                     .orElseThrow(() -> new NotFoundReportException());
             ReportDangerousCnt reportDangerousCnt = new ReportDangerousCnt(report, userId);
             reportDangerourCntRepository.save(reportDangerousCnt);
+            isDangerBtnClicked = true;
             report.updateReportDangerousNum(report.getReportDangerousNum() + 1);
         }
+        return new ReportDto.DangerousReportResponse(isDangerBtnClicked, report.getReportDangerousNum());
     }
 
     //관리자 -> 신고 복구 들어오면 삭제(해당 복구 신고 들어온 거 다 삭제)
