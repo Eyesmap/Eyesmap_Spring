@@ -113,6 +113,7 @@ public class AccountDto {
         private String nickname;
         private String profileImageUrl;
         private String imageName;
+        private boolean voiceOnOffBtn;
     }
 
     @Data
