@@ -33,7 +33,7 @@ public class LoginTestService {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    private final String imageName = "basicimage.jpeg";
+    private final String imageName = "basicimage1.jpeg";
     private final AccountRepository accountRepository;
 
     public void login(String code, HttpSession httpSession) {

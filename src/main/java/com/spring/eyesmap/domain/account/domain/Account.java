@@ -1,7 +1,6 @@
 package com.spring.eyesmap.domain.account.domain;
 
 import com.spring.eyesmap.global.enumeration.Role;
-import com.spring.eyesmap.global.enumeration.VoiceOnOff;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,10 +29,10 @@ public class Account {
     private String imageName;
 
     @Column
-    private VoiceOnOff voiceOnOff;
+    private Boolean voiceOnOff;
 
     @Builder
-    public Account(Long userId, String nickname, Role role, String profileImageUrl, String imageName, VoiceOnOff voiceOnOff){
+    public Account(Long userId, String nickname, Role role, String profileImageUrl, String imageName, Boolean voiceOnOff){
         this.userId = userId;
         this.nickname = nickname;
         this.role = role;
@@ -46,7 +45,7 @@ public class Account {
         this.nickname = nickname;
     }
 
-    public void updateVoiceOnOff(VoiceOnOff voiceOnOff){
+    public void updateVoiceOnOff(Boolean voiceOnOff){
         this.voiceOnOff = voiceOnOff;
     }
 

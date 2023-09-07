@@ -1,7 +1,10 @@
 package com.spring.eyesmap.domain.account.dto;
 
 import com.spring.eyesmap.global.enumeration.ReportEnum;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -113,7 +116,7 @@ public class AccountDto {
         private String nickname;
         private String profileImageUrl;
         private String imageName;
-        private boolean voiceOnOffBtn;
+        private Boolean voiceOnOff;
     }
 
     @Data

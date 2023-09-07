@@ -4,7 +4,6 @@ import com.spring.eyesmap.domain.account.domain.Account;
 import com.spring.eyesmap.domain.account.dto.AccountDto;
 import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.global.enumeration.Role;
-import com.spring.eyesmap.global.enumeration.VoiceOnOff;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.jwt.JwtTokenProvider;
 import com.spring.eyesmap.global.oauth.KakaoUserInfo;
@@ -31,7 +30,7 @@ public class LoginService {
     private final AccountRepository accountRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate redisTemplate;
-    private final String imageName = "basicimage.jpeg";
+    private final String imageName = "basicimage1.jpeg";
 
     @Value("${kakao.admin-key}")
     private String adminKey;
@@ -100,7 +99,7 @@ public class LoginService {
                         ".amazonaws.com/account/profile/image/" +
                         imageName)
                 .imageName("account/profile/image/" + imageName)
-                .voiceOnOff(VoiceOnOff.VOICE_ON)
+                .voiceOnOff(Boolean.TRUE)
                 .build();
 
         accountRepository.save(signInAccount);
