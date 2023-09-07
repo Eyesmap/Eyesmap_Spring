@@ -8,10 +8,8 @@ import com.spring.eyesmap.domain.image.domain.Image;
 import com.spring.eyesmap.domain.image.dto.ImageDto;
 import com.spring.eyesmap.domain.image.repository.ImageRepository;
 import com.spring.eyesmap.domain.image.service.S3UploaderService;
-import com.spring.eyesmap.domain.report.domain.Location;
 import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.domain.report.domain.ReportDangerousCnt;
-import com.spring.eyesmap.domain.report.repository.LocationRepository;
 import com.spring.eyesmap.domain.report.repository.ReportDangerourCntRepository;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.global.enumeration.ReportEnum;
@@ -24,7 +22,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
@@ -32,8 +29,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j

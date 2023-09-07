@@ -5,8 +5,6 @@ import com.spring.eyesmap.domain.account.repository.AccountRepository;
 import com.spring.eyesmap.domain.report.domain.Report;
 import com.spring.eyesmap.domain.report.repository.ReportRepository;
 import com.spring.eyesmap.domain.voice.dto.VoiceDto;
-import com.spring.eyesmap.global.enumeration.ReportEnum;
-import com.spring.eyesmap.global.enumeration.VoiceOnOff;
 import com.spring.eyesmap.global.exception.NotFoundAccountException;
 import com.spring.eyesmap.global.exception.NotFoundEnumException;
 import com.spring.eyesmap.global.exception.NotFoundReportException;
@@ -15,7 +13,6 @@ import com.spring.eyesmap.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +41,7 @@ public class VoiceService {
                     .orElseThrow(() -> new NotFoundAccountException());
             log.info("accountId= " + account.getUserId());
             // if voice off
-            if (account.getVoiceOnOff() == VoiceOnOff.VOICE_OFF){
+            if (!account.getVoiceOnOff()){
                 throw new VoiceOffException();
             }
         }
@@ -76,13 +73,13 @@ public class VoiceService {
                 .orElseThrow(() -> new NotFoundAccountException());
         log.info("accountId= " + account.getUserId());
 
-        VoiceOnOff currentVoiceOnOff = account.getVoiceOnOff();
+        Boolean currentVoiceOnOff = account.getVoiceOnOff();
 
-        if (currentVoiceOnOff == VoiceOnOff.VOICE_ON) {
-            account.updateVoiceOnOff(VoiceOnOff.VOICE_OFF);
+        if (currentVoiceOnOff) {
+            account.updateVoiceOnOff(Boolean.FALSE);
         }
         else{
-            account.updateVoiceOnOff(VoiceOnOff.VOICE_ON);
+            account.updateVoiceOnOff(Boolean.TRUE);
         }
     }
 }
