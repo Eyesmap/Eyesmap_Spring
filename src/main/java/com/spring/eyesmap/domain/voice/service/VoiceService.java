@@ -66,7 +66,7 @@ public class VoiceService {
     }
 
     @Transactional
-    public void changeVoiceOnOff() {
+    public boolean changeVoiceOnOff() {
         // get user
         Long userId = SecurityUtil.getCurrentAccountId();
         Account account = accountRepository.findById(userId)
@@ -75,11 +75,13 @@ public class VoiceService {
 
         Boolean currentVoiceOnOff = account.getVoiceOnOff();
 
+
         if (currentVoiceOnOff) {
             account.updateVoiceOnOff(Boolean.FALSE);
         }
         else{
             account.updateVoiceOnOff(Boolean.TRUE);
         }
+        return account.getVoiceOnOff();
     }
 }

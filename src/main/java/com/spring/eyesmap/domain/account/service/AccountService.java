@@ -266,6 +266,13 @@ public class AccountService {
                 .orElseThrow(() -> new NotFoundAccountException());
         log.info("accountId= " + account.getUserId());
 
+        boolean onOffBtn;
+        if(account.getVoiceOnOff()){
+            onOffBtn = true;
+        }else{
+            onOffBtn = false;
+        }
+
         AccountDto.FetchAccountResponseDto fetchAccountResponseDto = new AccountDto.FetchAccountResponseDto(
                 account.getNickname(),
                 account.getProfileImageUrl(),
