@@ -46,7 +46,7 @@ public class AccountService {
     private final S3UploaderService s3UploaderService;
     private final String imageBasicUrl = "account/profile/image/";
     private final String medalImageBasicUrl = "ranking/medal/";
-    private final String basicImageName = "basicimage.jpeg";
+    private final String basicImageName = "basicimage1.jpeg";
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -272,7 +272,8 @@ public class AccountService {
         AccountDto.FetchAccountResponseDto fetchAccountResponseDto = new AccountDto.FetchAccountResponseDto(
                 account.getNickname(),
                 account.getProfileImageUrl(),
-                account.getImageName());
+                account.getImageName(),
+                account.getVoiceOnOff());
 
         return fetchAccountResponseDto;
     }

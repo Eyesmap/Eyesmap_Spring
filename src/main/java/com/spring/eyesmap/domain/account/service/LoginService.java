@@ -31,7 +31,7 @@ public class LoginService {
     private final AccountRepository accountRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate redisTemplate;
-    private final String imageName = "basicimage.jpeg";
+    private final String imageName = "basicimage1.jpeg";
 
     @Value("${kakao.admin-key}")
     private String adminKey;
