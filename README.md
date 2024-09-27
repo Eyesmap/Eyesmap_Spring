@@ -1,6 +1,8 @@
 # Eyesmap
 
-"Eyesmap" is a voice map service that informs the damage of facilities for the blind.
+<img src="https://github.com/user-attachments/assets/17aece19-33ec-434e-b14f-67cd0f14e569" width=180 height=180/>
+
+"Eyesmap" is a voice-guided map service that notifies users of damaged facilities for the visually impaired.
 
 ## Overview
 
